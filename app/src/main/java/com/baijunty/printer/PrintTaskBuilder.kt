@@ -17,6 +17,11 @@ import java.nio.charset.Charset
 @Suppress("UNCHECKED_CAST")
 sealed class PrintTaskBuilder(protected val activity: FragmentActivity) {
     protected val rows = mutableListOf<Row>()
+    /**
+    * @param
+    * @return 当前总行数
+    */
+    val lines get() = rows.size
 
     /**
      *占用一整行
@@ -250,6 +255,13 @@ class HtmlPrinterTaskBuilder(activity: FragmentActivity):PrintTaskBuilder(activi
 
 @Suppress("UNCHECKED_CAST")
 sealed class RowBuilder(protected val row: Row, protected val builder: PrintTaskBuilder) {
+
+    /**
+    * @param
+    * @return 当前总列数
+    */
+    val size=row.columns.size
+
     /**
     * @param value 列文本内容
     * @return
