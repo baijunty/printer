@@ -135,7 +135,7 @@ sealed class PrintTaskBuilder(protected val activity: FragmentActivity) {
      *行内容生成，支持多列
      * @param limit 是否列宽严格受限
      */
-    fun newLine(limit:Boolean=false): RowBuilder {
+    fun newLine(limit:Boolean=false): BlueToothRowBuilder {
         val row = Row(rangeLimit = limit)
         rows.add(row)
         val builder = BlueToothRowBuilder(row, this)
@@ -292,11 +292,11 @@ sealed class RowBuilder(protected val row: Row, protected val builder: PrintTask
 }
 
 @Suppress("UNCHECKED_CAST")
-class BlueToothRowBuilder( row: Row,   builder: BlueToothPrinterTaskBuilder):RowBuilder(row,builder) {
+class BlueToothRowBuilder( row: Row,  val blueTaskBuilder: BlueToothPrinterTaskBuilder):RowBuilder(row,blueTaskBuilder) {
     /**
      * 填满整列
      */
-    fun fill(value: String): RowBuilder {
+    fun fill(value: String): BlueToothRowBuilder {
         row.columns.add(TextCell(value, align = Align.FILL) as Cell<Any>)
         return this
     }
@@ -305,29 +305,29 @@ class BlueToothRowBuilder( row: Row,   builder: BlueToothPrinterTaskBuilder):Row
     /**
      * 使用[supply]返回字节生成图片打印
      */
-    fun bitmap(supply: Supply<ByteArray, ImageCell>): PrintTaskBuilder {
+    fun bitmap(supply: Supply<ByteArray, ImageCell>): BlueToothPrinterTaskBuilder {
         row.columns.add(ImageCell("", type = ImageType.IMAGE, supply = supply) as Cell<Any>)
-        return builder
+        return blueTaskBuilder
     }
 
     /**
      * 使用[value]生成条形码打印
      */
-    fun barCode(value: String): PrintTaskBuilder {
+    fun barCode(value: String): BlueToothPrinterTaskBuilder {
         row.columns.add(ImageCell(value, type = ImageType.BARCODE) as Cell<Any>)
-        return builder
+        return blueTaskBuilder
     }
     /**
      * 使用[value]生成二维码打印
      */
-    fun qrCode(value: String): PrintTaskBuilder {
+    fun qrCode(value: String): BlueToothPrinterTaskBuilder {
         row.columns.add(ImageCell(value, type = ImageType.QR_CODE) as Cell<Any>)
-        return builder
+        return blueTaskBuilder
     }
 }
 
 @Suppress("UNCHECKED_CAST")
- class HtmlRowBuilder( row: Row,   builder: PrintTaskBuilder):RowBuilder(row,builder) {
+ class HtmlRowBuilder( row: Row,val htmlTaskBuilder: HtmlPrinterTaskBuilder):RowBuilder(row,htmlTaskBuilder) {
 
     /**
      * 使用[supply]返回字节生成图片打印
