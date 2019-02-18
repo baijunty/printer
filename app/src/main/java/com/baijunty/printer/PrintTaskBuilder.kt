@@ -287,17 +287,42 @@ sealed class RowBuilder(protected val row: Row, protected val builder: PrintTask
         return this
     }
 
+
     fun finish(): PrintTaskBuilder = builder
 }
 
 @Suppress("UNCHECKED_CAST")
-class BlueToothRowBuilder( row: Row,   builder: PrintTaskBuilder):RowBuilder(row,builder) {
+class BlueToothRowBuilder( row: Row,   builder: BlueToothPrinterTaskBuilder):RowBuilder(row,builder) {
     /**
      * 填满整列
      */
     fun fill(value: String): RowBuilder {
         row.columns.add(TextCell(value, align = Align.FILL) as Cell<Any>)
         return this
+    }
+
+
+    /**
+     * 使用[supply]返回字节生成图片打印
+     */
+    fun bitmap(supply: Supply<ByteArray, ImageCell>): PrintTaskBuilder {
+        row.columns.add(ImageCell("", type = ImageType.IMAGE, supply = supply) as Cell<Any>)
+        return builder
+    }
+
+    /**
+     * 使用[value]生成条形码打印
+     */
+    fun barCode(value: String): PrintTaskBuilder {
+        row.columns.add(ImageCell(value, type = ImageType.BARCODE) as Cell<Any>)
+        return builder
+    }
+    /**
+     * 使用[value]生成二维码打印
+     */
+    fun qrCode(value: String): PrintTaskBuilder {
+        row.columns.add(ImageCell(value, type = ImageType.QR_CODE) as Cell<Any>)
+        return builder
     }
 }
 
