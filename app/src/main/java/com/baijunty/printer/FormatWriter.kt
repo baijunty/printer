@@ -60,4 +60,9 @@ interface FormatWriter {
     * @return
     */
     fun clean()
+
+    /**
+     * 设置居中
+     */
+    fun writeCenter()
 }

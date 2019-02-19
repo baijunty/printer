@@ -60,6 +60,7 @@ class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset,rows:L
      * 打印图片[bitmap]
      */
     override fun writeBitmap(bitmap: Bitmap) {
+        writeCenter()
         val mode=0
         val len= printerType.len*12
         val scaleWidth= min(((bitmap.width+7)/8)*8,len)
@@ -102,6 +103,7 @@ class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset,rows:L
      * 打印[v]条形码
      */
     override fun writeBarCode(v: String) {
+        writeCenter()
         val contentByte = v.toByteArray(charset)
         val len = contentByte.size
         val bytes = ByteArray(len + 4)
@@ -134,4 +136,8 @@ class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset,rows:L
      * 下划线
      */
     override fun writeUnderLine()=writeBytes(byteArrayOf(0x1c, 0x2d, 0x2.toByte()),false)
+    /**
+     * 居中
+     */
+    override fun writeCenter() =writeBytes(byteArrayOf(0x1b, 0x61, 0x1.toByte()),false)
 }

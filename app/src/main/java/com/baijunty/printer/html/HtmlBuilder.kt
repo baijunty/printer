@@ -84,6 +84,10 @@ open class Tag(val name: String, var content: HtmlTagWriter? = null) : HtmlTagWr
 
     override fun clean() {
     }
+
+    override fun writeCenter() {
+        cls("center")
+    }
 }
 
 class CssValue<V>(name: String) : Tag(name) {
