@@ -35,7 +35,6 @@
 		 //builder.setView(printer.preview())
 		 //builder.show()
 		 //打印 
-		 //蓝牙打印会阻塞当前线程
 		 printer.print(object : PrinterListener {
 		 override fun onFinish(success: Boolean, error: Throwable?) {
 		 	if (success) {
