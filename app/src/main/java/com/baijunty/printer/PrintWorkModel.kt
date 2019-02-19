@@ -1,6 +1,7 @@
 package com.uplus.printer
 
 import android.arch.lifecycle.LifecycleObserver
+import android.content.Context
 import android.view.View
 import java.io.Closeable
 
@@ -9,10 +10,11 @@ import java.io.Closeable
  * 打印任务
  * @property writer 用于生成打印内容
  */
-interface PrintWorkModel : Closeable, LifecycleObserver {
+interface PrintWorkModel : Closeable {
     var writer:PrinterWriter
-    fun print(listener:PrinterListener)
-    fun preview():View
+    fun print(context: Context,listener:PrinterListener)
+    fun preview(context: Context):View
+    fun cancel()
 }
 
 /**

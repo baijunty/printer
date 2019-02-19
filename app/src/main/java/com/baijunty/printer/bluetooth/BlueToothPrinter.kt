@@ -1,34 +1,57 @@
 package com.uplus.printer.bluetooth
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.OnLifecycleEvent
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
-import android.support.v4.app.FragmentActivity
+import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.webkit.WebView
 import com.uplus.printer.*
 import java.lang.IllegalArgumentException
+import java.nio.charset.Charset
 import java.util.*
+import kotlin.concurrent.thread
+import kotlin.properties.Delegates
 
 /**
  * 目的蓝牙打印机
- * [address]地址,[type]类型,[printerWriter]生成打印数据,[activity]生成内容预览
- * @property [writer]用于设置[PrinterWriter]
+ * [address]地址,类型,[printerWriter]生成打印数据,[activity]生成内容预览
+ * @property [writer]用于自定义设置[PrinterWriter]
  */
 
-class BlueToothPrinter(private val address: String, var type:Type,
-                        var printerWriter: PrinterWriter,private val activity: FragmentActivity
+class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
 ): PrintWorkModel{
+    private lateinit var printerHandler:Handler
+    init {
+        thread (isDaemon=true,name = "bluetooth printer thread"){
+            Looper.prepare()
+            printerHandler=Handler(Looper.myLooper())
+            Looper.loop()
+        }
+    }
+    companion object {
+        @JvmStatic
+        val BLUETOOTH_PRINTER=BlueToothPrinter(CommonBluetoothWriter(Type.Type58, Charset.defaultCharset(),
+            emptyList()))
+    }
+
+    private var printTask:PrintTask?=null
+
+    var address:String by Delegates.observable(""){_,o,n->
+        if (o!=n&&BluetoothAdapter.checkBluetoothAddress(o)){
+            releaseSocket()
+        }
+    }
+
     override var writer: PrinterWriter
         get() = printerWriter
         set(value) {
             printerWriter=value
         }
-
     /**
      * 打印机类型
      */
@@ -99,12 +122,14 @@ class BlueToothPrinter(private val address: String, var type:Type,
     /**
      * 释放端口连接
      */
-    fun releaseSocket() {
+    private fun releaseSocket() {
         synchronized(BlueToothPrinter::class.java) {
             if (_socket?.isConnected == true) {
-                _socket!!.outputStream.close()
-                _socket!!.inputStream.close()
-                _socket!!.close()
+                kotlin.runCatching {
+                    _socket!!.outputStream.close()
+                    _socket!!.inputStream.close()
+                    _socket!!.close()
+                }
                 _socket = null
             }
         }
@@ -128,30 +153,29 @@ class BlueToothPrinter(private val address: String, var type:Type,
     }
 
     /**
-     * 正式打印
+     ** 正式打印
+     ** @param context
     * @param listener 打印任务结束回调
     * @return
     */
-    override fun print(listener: PrinterListener) {
-        val r=kotlin.runCatching {
-            Log.d(address,writer.preview().toString())
-            socket.outputStream.write(writer.print())
-        }
-        listener.onFinish(r.isSuccess,r.exceptionOrNull())
+    override fun print(context: Context,listener: PrinterListener) {
+        cancel()
+        printTask=PrintTask(context,listener)
+        printerHandler.post(printTask)
     }
 
     /**
-     * 生成预览数据View
+     * [context]生成预览数据View
      */
     @SuppressLint("SetJavaScriptEnabled")
-    override fun preview(): View{
-        val view= WebView(activity)
+    override fun preview(context: Context ): View{
+        val view= WebView(context)
         val settings = view.settings;
         settings.javaScriptCanOpenWindowsAutomatically = true
         settings.allowContentAccess = true
         settings.useWideViewPort = true
         settings.loadWithOverviewMode = true
-//        settings.builtInZoomControls = true
+        settings.builtInZoomControls = true
         settings.javaScriptEnabled = true;
         settings.setSupportZoom(true)
         view.loadDataWithBaseURL(null,writer.preview().toString(),"text/HTML", "UTF-8", null)
@@ -161,8 +185,33 @@ class BlueToothPrinter(private val address: String, var type:Type,
     /**
      * 生命周期管理，active结束时断开连接
      */
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     override fun close() {
-        releaseSocket()
+        cancel()
     }
+
+    override fun cancel() {
+        releaseSocket()
+        printTask?.let {
+            printerHandler.removeCallbacks(it)
+        }
+    }
+
+    private inner class PrintTask(val context: Context, val listener: PrinterListener): Runnable {
+        override fun run() {
+            val r=kotlin.runCatching {
+                Log.d(address,writer.preview().toString())
+                socket.outputStream.write(writer.print())
+            }
+            if (context is Activity&&!context.isFinishing){
+                context.runOnUiThread {
+                    listener.onFinish(r.isSuccess,r.exceptionOrNull())
+                }
+            } else {
+                Handler(context.mainLooper).post {
+                    listener.onFinish(r.isSuccess,r.exceptionOrNull())
+                }
+            }
+        }
+    }
+
 }

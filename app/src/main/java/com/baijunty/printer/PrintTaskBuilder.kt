@@ -2,7 +2,6 @@ package com.uplus.printer
 
 import android.annotation.TargetApi
 import android.os.Build
-import android.support.v4.app.FragmentActivity
 import com.uplus.printer.bluetooth.BlueToothPrinter
 import com.uplus.printer.bluetooth.CommonBluetoothWriter
 import com.uplus.printer.html.HtmlPrinter
@@ -11,11 +10,10 @@ import java.nio.charset.Charset
 
 /**
  *用于定义要打印的格式内容
- * 使用lifecycle 管理生命周期需要传入{@link FragmentActivity}.
  */
 
 @Suppress("UNCHECKED_CAST")
-sealed class PrintTaskBuilder(protected val activity: FragmentActivity) {
+sealed class PrintTaskBuilder {
     protected val rows = mutableListOf<Row>()
     /**
     * @param
@@ -92,7 +90,7 @@ sealed class PrintTaskBuilder(protected val activity: FragmentActivity) {
  * @property printerType 打印机类型 默认为58打印机
  */
 @Suppress("UNCHECKED_CAST")
- class BlueToothPrinterTaskBuilder(private val address: String, activity: FragmentActivity):PrintTaskBuilder(activity) {
+ class BlueToothPrinterTaskBuilder(private var address: String):PrintTaskBuilder() {
     var charset: Charset = Charset.forName("GBK")
     var printerType: BlueToothPrinter.Type = BlueToothPrinter.Type.Type58
 
@@ -179,15 +177,16 @@ sealed class PrintTaskBuilder(protected val activity: FragmentActivity) {
      * 生成蓝牙打印任务
      */
     override fun build(): PrintWorkModel {
-        val model=BlueToothPrinter(address,printerType,CommonBluetoothWriter(printerType,charset,rows),activity)
-        activity.lifecycle.addObserver(model)
-        return model
+        return BlueToothPrinter.BLUETOOTH_PRINTER.apply {
+            this.address=address
+            writer=CommonBluetoothWriter(printerType,charset,rows)
+        }
     }
 }
 
 @Suppress("UNCHECKED_CAST")
 @TargetApi(Build.VERSION_CODES.KITKAT)
-class HtmlPrinterTaskBuilder(activity: FragmentActivity):PrintTaskBuilder(activity){
+class HtmlPrinterTaskBuilder:PrintTaskBuilder(){
     /**
      *@see [PrintTaskBuilder.line]
      */
@@ -247,9 +246,7 @@ class HtmlPrinterTaskBuilder(activity: FragmentActivity):PrintTaskBuilder(activi
      * 生成局域网打印任务
      */
     override fun build(): PrintWorkModel {
-        val model= HtmlPrinter(activity,HtmlWriter(rows))
-        activity.lifecycle.addObserver(model)
-        return model
+        return HtmlPrinter(HtmlWriter(rows))
     }
 }
 

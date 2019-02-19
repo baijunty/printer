@@ -20,7 +20,7 @@ import print.PrintDocumentAdapterWrapper
  * 使用[htmlWriter]生成内容，[activity]生成预览View
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
-class HtmlPrinter(private val activity: FragmentActivity, private var htmlWriter: PrinterWriter): PrintWorkModel {
+class HtmlPrinter(private var htmlWriter: PrinterWriter): PrintWorkModel {
     override var writer: PrinterWriter
         get() = htmlWriter
         set(value) {
@@ -31,9 +31,9 @@ class HtmlPrinter(private val activity: FragmentActivity, private var htmlWriter
      * 生成HTML文档并打印
      * [listener]回调打印结果
      */
-    override fun print(listener: PrinterListener) {
-        val view= preview() as WebView
-        val printService=activity.getSystemService(Context.PRINT_SERVICE) as PrintManager
+    override fun print(context: Context,listener: PrinterListener) {
+        val view= preview(context) as WebView
+        val printService=context.getSystemService(Context.PRINT_SERVICE) as PrintManager
         val adapter= PrintDocumentAdapterWrapper(if (Build.VERSION.SDK_INT>=21) view.createPrintDocumentAdapter("default") else view.createPrintDocumentAdapter()) {
             listener.onFinish(job?.isStarted==true&&job?.isFailed==false&&job?.isCancelled==false,null)
         }
@@ -44,8 +44,8 @@ class HtmlPrinter(private val activity: FragmentActivity, private var htmlWriter
      * 生成HTML预览文档View
      */
     @SuppressLint("SetJavaScriptEnabled")
-    override fun preview(): View {
-        val view=WebView(activity)
+    override fun preview(context: Context): View {
+        val view=WebView(context)
         val settings = view.settings;
         settings.javaScriptCanOpenWindowsAutomatically = true
         settings.allowContentAccess = true
@@ -58,12 +58,11 @@ class HtmlPrinter(private val activity: FragmentActivity, private var htmlWriter
         return view
     }
 
-
-    /**
-     * [activity]结束取消任务
-     */
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     override fun close() {
+        cancel()
+    }
+
+    override fun cancel() {
         job?.cancel()
     }
 }
