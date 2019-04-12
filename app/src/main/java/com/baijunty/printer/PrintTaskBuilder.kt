@@ -184,7 +184,7 @@ sealed class PrintTaskBuilder {
      */
     override fun build(): PrintWorkModel {
         return BlueToothPrinter.BLUETOOTH_PRINTER.apply {
-            this.address=address
+            address=this@BlueToothPrinterTaskBuilder.address
             writer= if (this@BlueToothPrinterTaskBuilder.writer==null) CommonBluetoothWriter(printerType,charset,rows) else
                 this@BlueToothPrinterTaskBuilder.writer as PrinterWriter
         }

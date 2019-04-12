@@ -3,8 +3,10 @@ package com.baijunty.printer.bluetooth
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -140,6 +142,25 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
         }
     }
 
+    /**
+     * 配对设备
+     * @return true 成功
+     */
+    @SuppressLint("NewApi")
+    fun pairToDevices(device: BluetoothDevice): Boolean {
+        return when {
+            device.bondState == BluetoothDevice.BOND_BONDED -> true
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT -> device.createBond()
+            else -> {
+                val blueToothClass = device.javaClass
+                val createBondMethod = blueToothClass.getDeclaredMethod("createBond")
+                createBondMethod.isAccessible = true
+                createBondMethod.invoke(device)
+                return true
+            }
+        }
+    }
+
     //端口
     private var _socket: BluetoothSocket? = null
 
@@ -147,8 +168,13 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
     private val socket: BluetoothSocket
         get() {
             if (_socket == null || !_socket!!.isConnected) {
-                _socket = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address).createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
-                _socket!!.connect()
+                val device=BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address)
+                if (pairToDevices(device)){
+                    _socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
+                    _socket!!.connect()
+                } else {
+                    throw  IllegalStateException("设备配对失败")
+                }
             }
             return _socket!!
         }
