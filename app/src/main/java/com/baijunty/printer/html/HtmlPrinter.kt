@@ -1,23 +1,20 @@
-package com.uplus.printer.html
+package com.baijunty.printer.html
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.OnLifecycleEvent
 import android.content.Context
 import android.os.Build
 import android.print.PrintAttributes
 import android.print.PrintJob
 import android.print.PrintManager
 import android.support.annotation.RequiresApi
-import android.support.v4.app.FragmentActivity
 import android.view.View
 import android.webkit.WebView
-import com.uplus.printer.PrintWorkModel
-import com.uplus.printer.PrinterListener
-import com.uplus.printer.PrinterWriter
-import print.PrintDocumentAdapterWrapper
+import com.baijunty.printer.PrintWorkModel
+import com.baijunty.printer.PrinterListener
+import com.baijunty.printer.PrinterWriter
+
 /**
- * 使用[htmlWriter]生成内容，[activity]生成预览View
+ * 使用[htmlWriter]生成内容
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 class HtmlPrinter(private var htmlWriter: PrinterWriter): PrintWorkModel {
@@ -46,13 +43,13 @@ class HtmlPrinter(private var htmlWriter: PrinterWriter): PrintWorkModel {
     @SuppressLint("SetJavaScriptEnabled")
     override fun preview(context: Context): View {
         val view=WebView(context)
-        val settings = view.settings;
+        val settings = view.settings
         settings.javaScriptCanOpenWindowsAutomatically = true
         settings.allowContentAccess = true
         settings.useWideViewPort = true
         settings.loadWithOverviewMode = true
         settings.builtInZoomControls = true
-        settings.javaScriptEnabled = true;
+        settings.javaScriptEnabled = true
         settings.setSupportZoom(true)
         view.loadDataWithBaseURL(null,writer.preview().toString(),"text/HTML", "UTF-8", null)
         return view

@@ -1,7 +1,7 @@
-package com.uplus.printer.html
+package com.baijunty.printer.html
 
 import android.graphics.BitmapFactory
-import com.uplus.printer.*
+import com.baijunty.printer.*
 
 class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : PrinterWriter {
     /**
@@ -63,7 +63,7 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
      * 设置文字效果
      * @param cell 要设置的单元格
      */
-    private fun Tag.writeStyle(cell:TextCell){
+    private fun Tag.writeStyle(cell: TextCell){
         //双倍大小
         if (cell.style.double) {
             writeHeighten()
@@ -83,7 +83,7 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
      * @param cell 要写入的单元格
      * 返回空字符
      */
-    private fun Tag.writeContentByAlign(cell:TextCell):String{
+    private fun Tag.writeContentByAlign(cell: TextCell):String{
         return when (cell.align) {
             Align.CENTER -> {
                 cls("center")

@@ -1,4 +1,4 @@
-package com.uplus.printer
+package com.baijunty.printer
 
 import android.graphics.Bitmap
 import android.graphics.Color.BLACK

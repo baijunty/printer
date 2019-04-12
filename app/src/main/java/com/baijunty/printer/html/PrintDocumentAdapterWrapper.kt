@@ -1,4 +1,4 @@
-package print
+package com.baijunty.printer.html
 
 import android.annotation.TargetApi
 import android.os.Build

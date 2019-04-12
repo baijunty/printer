@@ -1,15 +1,16 @@
-package com.uplus.printer.bluetooth
+package com.baijunty.printer.bluetooth
 
 import android.graphics.*
-import com.uplus.printer.Row
-import com.uplus.printer.toQrCodeBitmap
+import com.baijunty.printer.Row
+import com.baijunty.printer.toQrCodeBitmap
 import java.nio.charset.Charset
 import kotlin.math.min
 
 /**
  * 市面常用打印机指令
  */
-class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset,rows:List<Row>):BlueToothWriter(type,charset,rows) {
+class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset, rows:List<Row>):
+    BlueToothWriter(type,charset,rows) {
     companion object {
         /**
          * 讲图片[bmpOriginal]按宽度[targetWidth]转换成打印机支持的灰度图

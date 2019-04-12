@@ -1,10 +1,10 @@
-package com.uplus.printer.html
+package com.baijunty.printer.html
 
 import android.graphics.Bitmap
 import android.util.Base64
-import com.uplus.printer.FormatWriter
-import com.uplus.printer.toBarCodeBitmap
-import com.uplus.printer.toQrCodeBitmap
+import com.baijunty.printer.FormatWriter
+import com.baijunty.printer.toBarCodeBitmap
+import com.baijunty.printer.toQrCodeBitmap
 import java.io.ByteArrayOutputStream
 
 /**
@@ -226,7 +226,8 @@ fun Tag.table(init: Table.() -> Unit) {
 fun html(border:Int=1,init: Tag.() -> Unit): Tag {
     val html = Tag("html")
     val head= Tag("head")
-    head.addChild(ConstWrite("""
+    head.addChild(
+        ConstWrite("""
         <style>
       .flex-container {
   display: flex;
@@ -264,7 +265,8 @@ border:1px solid black;
          }
          </style>
             """
-    ))
+    )
+    )
     html.addChild(head)
     val body = Tag("body")
     body.init()
@@ -272,6 +274,6 @@ border:1px solid black;
     return html
 }
 
-interface HtmlTagWriter:FormatWriter {
+interface HtmlTagWriter: FormatWriter {
     fun write(sb: StringBuilder)
 }

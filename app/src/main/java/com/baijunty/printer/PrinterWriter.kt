@@ -1,4 +1,4 @@
-package com.uplus.printer
+package com.baijunty.printer
 
 /**
  *打印机打印内容生成

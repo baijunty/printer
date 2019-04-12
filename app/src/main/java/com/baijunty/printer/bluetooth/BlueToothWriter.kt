@@ -1,8 +1,8 @@
-package com.uplus.printer.bluetooth
+package com.baijunty.printer.bluetooth
 
 import android.graphics.Rect
-import com.uplus.printer.*
-import com.uplus.printer.html.HtmlWriter
+import com.baijunty.printer.*
+import com.baijunty.printer.html.HtmlWriter
 import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
 import kotlin.math.max
@@ -13,7 +13,8 @@ import kotlin.math.max
  * @property left 定义当前光标横向位置
  * @property writer 缓存写入内容
  */
-abstract class BlueToothWriter(protected val printerType: BlueToothPrinter.Type, protected val charset: Charset, private val rows: List<Row>) : PrinterWriter, FormatWriter {
+abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Charset,  rows: List<Row>) :
+    ContentWriter(printerType,charset,rows) {
     var top = 0
     var left = 0
     private val writer = ByteArrayOutputStream()

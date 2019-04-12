@@ -1,11 +1,12 @@
-package com.uplus.printer
+package com.baijunty.printer
 
 import android.annotation.TargetApi
 import android.os.Build
-import com.uplus.printer.bluetooth.BlueToothPrinter
-import com.uplus.printer.bluetooth.CommonBluetoothWriter
-import com.uplus.printer.html.HtmlPrinter
-import com.uplus.printer.html.HtmlWriter
+import com.baijunty.printer.bluetooth.BlueToothPrinter
+import com.baijunty.printer.bluetooth.CommonBluetoothWriter
+import com.baijunty.printer.bluetooth.ContentWriter
+import com.baijunty.printer.html.HtmlPrinter
+import com.baijunty.printer.html.HtmlWriter
 import java.nio.charset.Charset
 
 /**
@@ -86,15 +87,14 @@ sealed class PrintTaskBuilder {
 /**
  *蓝牙打印机格式生成器
  * @param address 目标打印机地址
- * @param activity 用于管理生命周期
  * @property charset 目标打印机编码格式
  * @property printerType 打印机类型 默认为58打印机
  */
 @Suppress("UNCHECKED_CAST")
- class BlueToothPrinterTaskBuilder(private var address: String):PrintTaskBuilder() {
+ class BlueToothPrinterTaskBuilder(private var address: String): PrintTaskBuilder() {
     var charset: Charset = Charset.forName("GBK")
     var printerType: BlueToothPrinter.Type = BlueToothPrinter.Type.Type58
-
+    var writer: ContentWriter?=null
     /**
      *@see [PrintTaskBuilder.line]
      */
@@ -137,8 +137,7 @@ sealed class PrintTaskBuilder {
     override fun newLine(limit:Boolean): BlueToothRowBuilder {
         val row = Row(rangeLimit = limit)
         rows.add(row)
-        val builder = BlueToothRowBuilder(row, this)
-        return builder
+        return BlueToothRowBuilder(row, this)
     }
 
     /**
@@ -174,20 +173,27 @@ sealed class PrintTaskBuilder {
          return this
      }
 
+    fun <T:ContentWriter> setPrinterWriter(cls:Class<T>){
+        val constructor= cls.getConstructor(BlueToothPrinter.Type::class.java,Charset::class.java, MutableList::class.java)
+         constructor.isAccessible=true
+        this.writer=constructor.newInstance(printerType,charset,rows)
+    }
+
     /**
      * 生成蓝牙打印任务
      */
     override fun build(): PrintWorkModel {
         return BlueToothPrinter.BLUETOOTH_PRINTER.apply {
             this.address=address
-            writer=CommonBluetoothWriter(printerType,charset,rows)
+            writer= if (this@BlueToothPrinterTaskBuilder.writer==null) CommonBluetoothWriter(printerType,charset,rows) else
+                this@BlueToothPrinterTaskBuilder.writer as PrinterWriter
         }
     }
 }
 
 @Suppress("UNCHECKED_CAST")
 @TargetApi(Build.VERSION_CODES.KITKAT)
-class HtmlPrinterTaskBuilder:PrintTaskBuilder(){
+class HtmlPrinterTaskBuilder: PrintTaskBuilder(){
     /**
      *@see [PrintTaskBuilder.line]
      */
@@ -238,7 +244,7 @@ class HtmlPrinterTaskBuilder:PrintTaskBuilder(){
     fun newLine(limit:Boolean=false,func: HtmlRowBuilder.() -> Unit): HtmlPrinterTaskBuilder {
         val row = Row(rangeLimit = limit)
         rows.add(row)
-        val builder =HtmlRowBuilder(row, this)
+        val builder = HtmlRowBuilder(row, this)
         builder.func()
         builder.finish()
         return this
@@ -272,7 +278,7 @@ sealed class RowBuilder(protected val row: Row, protected val builder: PrintTask
      * @param value 列文本内容 设置加粗[bold]，加高[heighten]，下划线[underLine]，对齐[align] 以及列权重[weight]
      * @return
      */
-    fun string(value: String, bold: Boolean = false, heighten: Boolean = false, underLine:Boolean=false,align: Align = Align.LEFT, weight: Int = 1): RowBuilder {
+    fun string(value: String, bold: Boolean = false, heighten: Boolean = false, underLine:Boolean=false, align: Align = Align.LEFT, weight: Int = 1): RowBuilder {
         row.columns.add(TextCell(value, Style(bold, double = heighten,underLine = underLine), align, weight = weight) as Cell<Any>)
         return this
     }
@@ -280,7 +286,7 @@ sealed class RowBuilder(protected val row: Row, protected val builder: PrintTask
      *  [supply] 自定义列文本内容 设置加粗[bold]，加高[heighten]，下划线[underLine]，对齐[align] 以及列权重[weight]
      * @return
      */
-    fun custom(supply: Supply<String, TextCell>,bold: Boolean = false, heighten: Boolean = false, underLine:Boolean=false,align: Align = Align.LEFT, weight: Int = 1): RowBuilder {
+    fun custom(supply: Supply<String, TextCell>, bold: Boolean = false, heighten: Boolean = false, underLine:Boolean=false, align: Align = Align.LEFT, weight: Int = 1): RowBuilder {
         row.columns.add(TextCell("", supply = supply) as Cell<Any>)
         return this
     }
@@ -290,7 +296,7 @@ sealed class RowBuilder(protected val row: Row, protected val builder: PrintTask
 }
 
 @Suppress("UNCHECKED_CAST")
-class BlueToothRowBuilder( row: Row,  val blueTaskBuilder: BlueToothPrinterTaskBuilder):RowBuilder(row,blueTaskBuilder) {
+class BlueToothRowBuilder(row: Row, val blueTaskBuilder: BlueToothPrinterTaskBuilder): RowBuilder(row,blueTaskBuilder) {
     /**
      * 填满整列
      */
@@ -325,7 +331,7 @@ class BlueToothRowBuilder( row: Row,  val blueTaskBuilder: BlueToothPrinterTaskB
 }
 
 @Suppress("UNCHECKED_CAST")
- class HtmlRowBuilder( row: Row,val htmlTaskBuilder: HtmlPrinterTaskBuilder):RowBuilder(row,htmlTaskBuilder) {
+ class HtmlRowBuilder(row: Row, val htmlTaskBuilder: HtmlPrinterTaskBuilder): RowBuilder(row,htmlTaskBuilder) {
 
     /**
      * 使用[supply]返回字节生成图片打印

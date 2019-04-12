@@ -1,4 +1,4 @@
-package com.uplus.printer.bluetooth
+package com.baijunty.printer.bluetooth
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -10,36 +10,42 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.webkit.WebView
-import com.uplus.printer.*
+import com.baijunty.printer.*
 import java.lang.IllegalArgumentException
 import java.nio.charset.Charset
 import java.util.*
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import kotlin.properties.Delegates
 
 /**
  * 目的蓝牙打印机
- * [address]地址,类型,[printerWriter]生成打印数据,[activity]生成内容预览
+ * [address]地址,类型,[printerWriter]生成打印数据
  * @property [writer]用于自定义设置[PrinterWriter]
  */
 
 class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
-): PrintWorkModel{
+): PrintWorkModel {
     private lateinit var printerHandler:Handler
+    private val thread:Thread
+    private val downLatch= CountDownLatch(1)
     init {
-        thread (isDaemon=true,name = "bluetooth printer thread"){
+        thread=thread (isDaemon=true,name = "bluetooth printer thread"){
             Looper.prepare()
             printerHandler=Handler(Looper.myLooper())
+            downLatch.countDown()
             Looper.loop()
         }
     }
     companion object {
         @JvmStatic
-        val BLUETOOTH_PRINTER=BlueToothPrinter(CommonBluetoothWriter(Type.Type58, Charset.defaultCharset(),
+        val BLUETOOTH_PRINTER= BlueToothPrinter(CommonBluetoothWriter(
+            Type.Type58, Charset.defaultCharset(),
             emptyList()))
     }
 
-    private var printTask:PrintTask?=null
+    private var printTask: PrintTask?=null
 
     var address:String by Delegates.observable(""){_,o,n->
         if (o!=n&&BluetoothAdapter.checkBluetoothAddress(o)){
@@ -79,9 +85,8 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
             }
             if (row.columns.size>1){
                 row.columns.forEach {
-                    val define=it
-                    when(define){
-                        is TextCell->if (define.style.double||define.style.bold){
+                    when(val define=it){
+                        is TextCell ->if (define.style.double||define.style.bold){
                             throw IllegalArgumentException("蓝牙打印机加粗加高条只支持单行")
                         }
                         is ImageCell -> if (row.columns.size>1){
@@ -103,9 +108,9 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
         * @return 打印机类型支持最大列数
         */
         private fun getMaxColumns():Int=when(this){
-            BlueToothPrinter.Type.Type58 -> 5
-            BlueToothPrinter.Type.Type80 -> 7
-            BlueToothPrinter.Type.Type110 -> 10
+            Type58 -> 5
+            Type80 -> 7
+            Type110 -> 10
         }
 
         /**
@@ -125,7 +130,7 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
     private fun releaseSocket() {
         synchronized(BlueToothPrinter::class.java) {
             if (_socket?.isConnected == true) {
-                kotlin.runCatching {
+                runCatching {
                     _socket!!.outputStream.close()
                     _socket!!.inputStream.close()
                     _socket!!.close()
@@ -160,6 +165,7 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
     */
     override fun print(context: Context,listener: PrinterListener) {
         cancel()
+        downLatch.await(1,TimeUnit.SECONDS)
         printTask=PrintTask(context,listener)
         printerHandler.post(printTask)
     }
@@ -170,13 +176,13 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
     @SuppressLint("SetJavaScriptEnabled")
     override fun preview(context: Context ): View{
         val view= WebView(context)
-        val settings = view.settings;
+        val settings = view.settings
         settings.javaScriptCanOpenWindowsAutomatically = true
         settings.allowContentAccess = true
         settings.useWideViewPort = true
         settings.loadWithOverviewMode = true
         settings.builtInZoomControls = true
-        settings.javaScriptEnabled = true;
+        settings.javaScriptEnabled = true
         settings.setSupportZoom(true)
         view.loadDataWithBaseURL(null,writer.preview().toString(),"text/HTML", "UTF-8", null)
         return view
@@ -198,8 +204,7 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
 
     private inner class PrintTask(val context: Context, val listener: PrinterListener): Runnable {
         override fun run() {
-            val r=kotlin.runCatching {
-                Log.d(address,writer.preview().toString())
+            val r=runCatching {
                 socket.outputStream.write(writer.print())
             }
             if (context is Activity&&!context.isFinishing){

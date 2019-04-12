@@ -1,6 +1,5 @@
-package com.uplus.printer
+package com.baijunty.printer
 
-import android.arch.lifecycle.LifecycleObserver
 import android.content.Context
 import android.view.View
 import java.io.Closeable
@@ -11,8 +10,8 @@ import java.io.Closeable
  * @property writer 用于生成打印内容
  */
 interface PrintWorkModel : Closeable {
-    var writer:PrinterWriter
-    fun print(context: Context,listener:PrinterListener)
+    var writer: PrinterWriter
+    fun print(context: Context,listener: PrinterListener)
     fun preview(context: Context):View
     fun cancel()
 }
