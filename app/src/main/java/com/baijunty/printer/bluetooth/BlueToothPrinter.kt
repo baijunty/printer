@@ -32,6 +32,7 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
     private lateinit var printerHandler:Handler
     private val thread:Thread
     private val downLatch= CountDownLatch(1)
+    var printTime:Int=1
     init {
         thread=thread (isDaemon=true,name = "bluetooth printer thread"){
             Looper.prepare()
@@ -231,7 +232,9 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
     private inner class PrintTask(val context: Context, val listener: PrinterListener): Runnable {
         override fun run() {
             val r=runCatching {
-                socket.outputStream.write(writer.print())
+                for (i in 0 until printTime){
+                    socket.outputStream.write(writer.print())
+                }
             }
             if (context is Activity&&!context.isFinishing){
                 context.runOnUiThread {

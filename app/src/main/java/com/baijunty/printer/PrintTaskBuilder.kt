@@ -95,6 +95,8 @@ sealed class PrintTaskBuilder {
     var charset: Charset = Charset.forName("GBK")
     var printerType: BlueToothPrinter.Type = BlueToothPrinter.Type.Type58
     var writer: ContentWriter?=null
+    var printTime:Int=1
+
     /**
      *@see [PrintTaskBuilder.line]
      */
@@ -184,6 +186,7 @@ sealed class PrintTaskBuilder {
      */
     override fun build(): PrintWorkModel {
         return BlueToothPrinter.BLUETOOTH_PRINTER.apply {
+            printTime= this@BlueToothPrinterTaskBuilder.printTime
             address=this@BlueToothPrinterTaskBuilder.address
             writer= if (this@BlueToothPrinterTaskBuilder.writer==null) CommonBluetoothWriter(printerType,charset,rows) else
                 this@BlueToothPrinterTaskBuilder.writer as PrinterWriter
