@@ -55,7 +55,12 @@ class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset, rows:
      * 生成[v]二维码图片后打印
      */
     override fun writeQrCode(v: String) {
-        writeBitmap(toQrCodeBitmap(v))
+        val len=when(printerType){
+            BlueToothPrinter.Type.Type58 -> 400
+            BlueToothPrinter.Type.Type80 -> 540
+            BlueToothPrinter.Type.Type110 -> 700
+        }
+        writeBitmap(toQrCodeBitmap(v,len,len))
     }
     /**
      * 打印图片[bitmap]
