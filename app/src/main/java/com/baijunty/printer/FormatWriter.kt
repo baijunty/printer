@@ -34,13 +34,13 @@ interface FormatWriter {
      * @param v 二维码内容
     * @return
     */
-    fun writeQrCode(v: String)
+    fun writeQrCode(v: String,width:Int,height:Int)
     /**
      * 条码生成写入
     * @param v 条码内容
     * @return
     */
-    fun writeBarCode(v: String)
+    fun writeBarCode(v: String,type:Int)
     /**
      * 下划线
     * @param

@@ -67,12 +67,14 @@ open class Tag(val name: String, var content: HtmlTagWriter? = null) : HtmlTagWr
         }
     }
 
-    override fun writeQrCode(v: String) {
-        writeBitmap(toQrCodeBitmap(v))
+    override fun writeQrCode(v: String, width: Int, height: Int) {
+        val w=if (width<=0) 400 else width
+        val h=if (height<=0) w else height
+        writeBitmap(toQrCodeBitmap(v,w,h))
     }
 
-    override fun writeBarCode(v: String) {
-        writeBitmap(toBarCodeBitmap(v))
+    override fun writeBarCode(v: String, type: Int) {
+        writeBitmap(toBarCodeBitmap(v,type==72))
     }
 
     override fun writeUnderLine() {

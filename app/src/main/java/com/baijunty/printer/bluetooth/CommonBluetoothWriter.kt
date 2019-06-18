@@ -54,13 +54,14 @@ class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset, rows:
     /**
      * 生成[v]二维码图片后打印
      */
-    override fun writeQrCode(v: String) {
-        val len=when(printerType){
+    override fun writeQrCode(v: String, width:Int, height:Int) {
+        val w=if (width<=0) when(printerType){
             BlueToothPrinter.Type.Type58 -> 400
             BlueToothPrinter.Type.Type80 -> 540
             BlueToothPrinter.Type.Type110 -> 700
-        }
-        writeBitmap(toQrCodeBitmap(v,len,len))
+        } else width
+        val h=if (height<=0) w else height
+        writeBitmap(toQrCodeBitmap(v,w,h))
     }
     /**
      * 打印图片[bitmap]
@@ -108,18 +109,17 @@ class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset, rows:
     /**
      * 打印[v]条形码
      */
-    override fun writeBarCode(v: String) {
+    override fun writeBarCode(v: String,type:Int) {
         writeCenter()
         val contentByte = v.toByteArray(charset)
         val len = contentByte.size
         val bytes = ByteArray(len + 4)
-        val codeId=72
-        if (codeId < 7) {
-            System.arraycopy(byteArrayOf(0x1D, 0x6B, codeId.toByte()), 0, bytes, 0, 3)
+        if (type < 7) {
+            System.arraycopy(byteArrayOf(0x1D, 0x6B, type.toByte()), 0, bytes, 0, 3)
             System.arraycopy(contentByte, 0, bytes, 3, len)
             bytes[bytes.lastIndex] = 0x0
         } else {
-            System.arraycopy(byteArrayOf(0x1D, 0x6B, codeId.toByte(), len.toByte()), 0, bytes, 0, 4)
+            System.arraycopy(byteArrayOf(0x1D, 0x6B, type.toByte(), len.toByte()), 0, bytes, 0, 4)
             System.arraycopy(contentByte, 0, bytes, 4, len)
         }
         writeBytes(bytes,false)

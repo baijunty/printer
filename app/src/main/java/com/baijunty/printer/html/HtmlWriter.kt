@@ -35,10 +35,10 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
                                     tag("div"){
                                         when (it.type) {
                                             ImageType.BARCODE -> {
-                                                writeBarCode(it.content)
+                                                writeBarCode(it.content,it.params[0])
                                             }
                                             ImageType.QR_CODE -> {
-                                                writeQrCode(it.content)
+                                                writeQrCode(it.content,it.params[0],it.params[1])
                                             }
                                             ImageType.IMAGE -> {
                                                 val bytes = it.getValue()

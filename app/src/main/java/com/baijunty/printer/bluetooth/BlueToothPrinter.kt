@@ -51,7 +51,7 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
     private var printTask: PrintTask?=null
 
     var address:String by Delegates.observable(""){_,o,n->
-        if (o!=n&&BluetoothAdapter.checkBluetoothAddress(o)){
+        if (o!=n&&BluetoothAdapter.checkBluetoothAddress(n)){
             releaseSocket()
         }
     }
@@ -191,7 +191,6 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
     * @return
     */
     override fun print(context: Context,listener: PrinterListener) {
-        cancel()
         downLatch.await(1,TimeUnit.SECONDS)
         printTask=PrintTask(context,listener)
         printerHandler.post(printTask)

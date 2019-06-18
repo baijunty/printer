@@ -1,5 +1,6 @@
 package com.baijunty.printer.bluetooth
 
+import android.graphics.BitmapFactory
 import android.graphics.Rect
 import com.baijunty.printer.*
 import com.baijunty.printer.html.HtmlWriter
@@ -153,9 +154,12 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
             }
             is ImageCell -> {
                 when (column.type) {
-                    ImageType.BARCODE -> writeBarCode(column.content)
-                    ImageType.QR_CODE -> writeQrCode(column.content)
-                    ImageType.IMAGE -> writeBytes(column.getValue())
+                    ImageType.BARCODE -> writeBarCode(column.content,column.params[0])
+                    ImageType.QR_CODE -> writeQrCode(column.content,column.params[0],column.params[1])
+                    ImageType.IMAGE -> {
+                        val b=column.getValue()
+                        writeBitmap(BitmapFactory.decodeByteArray(b,0,b.size))
+                    }
                 }
             }
         }
