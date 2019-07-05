@@ -9,7 +9,6 @@ import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.webkit.WebView
 import com.baijunty.printer.*
@@ -232,7 +231,10 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
         override fun run() {
             val r=runCatching {
                 for (i in 0 until printTime){
-                    socket.outputStream.write(writer.print())
+                    if (!tryWrite()){
+                        releaseSocket()
+                        socket.outputStream.write(writer.print())
+                    }
                 }
             }
             if (context is Activity&&!context.isFinishing){
@@ -245,6 +247,13 @@ class BlueToothPrinter private constructor(var printerWriter: PrinterWriter
                 }
             }
         }
+    }
+
+    private fun tryWrite() :Boolean{
+        return runCatching {
+            socket.outputStream.write(writer.print())
+            true
+        }.getOrDefault(false)
     }
 
 }
