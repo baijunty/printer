@@ -93,7 +93,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
                             val start = columnsPos[index]
                             var end = start
                             var len = 0
-                            while (end < v.length && len + v[end].len() < width) {
+                            while (end < v.length && len + v[end].len() <= width) {
                                 len += v[end].len()
                                 end++
                             }

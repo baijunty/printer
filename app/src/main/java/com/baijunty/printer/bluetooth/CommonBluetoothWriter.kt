@@ -9,7 +9,7 @@ import kotlin.math.min
 /**
  * 市面常用打印机指令
  */
-class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset, rows:List<Row>):
+open class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset, rows:List<Row>):
     BlueToothWriter(type,charset,rows) {
     companion object {
         /**
@@ -105,6 +105,8 @@ class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset, rows:
             }
             writeBytes(b,false)
         }
+        writeLf()
+        clean()
     }
     /**
      * 打印[v]条形码
