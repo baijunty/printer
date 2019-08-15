@@ -99,15 +99,15 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
                             }
                             if (len > 0) {
                                 val c = TextCell(v.substring(start, end), column.style, column.align, OriginSupply, column.weight)
-                                needClean = needClean || writeColumn(c,rect)
+                                needClean = needClean || writeColumn(c,rect,row.gap)
                                 columnsPos[index] = end
                             } else {
                                 val c = TextCell(" ", column.style, Align.FILL, OriginSupply, column.weight)
-                                writeColumn(c, rect)
+                                writeColumn(c, rect,row.gap)
                             }
                         }
                         is ImageCell -> {
-                            writeColumn(column, rect)
+                            writeColumn(column, rect,row.gap)
                             columnsPos[index] = -1
                         }
                     }
@@ -126,7 +126,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
         val rects = getRowRect(row)
         var needClean = false
         for ((index, column) in row.columns.withIndex()) {
-            needClean = needClean || writeColumn(column, rects[index])
+            needClean = needClean || writeColumn(column, rects[index],row.gap)
         }
         writeLf()
         if (needClean) {
@@ -138,7 +138,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
      * 根据[column]列写入格式和内容 [rect]写入区域
      * @return 是否写入打印机指令 true下一行需要清除特殊指令
      */
-    private fun writeColumn(column: Cell<*>, rect: Rect): Boolean {
+    private fun writeColumn(column: Cell<*>, rect: Rect,gap:Int): Boolean {
         when (column) {
             is TextCell -> {
                 if (column.style.bold) {
@@ -150,7 +150,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
                 if (column.style.underLine) {
                     writeUnderLine()
                 }
-                writeColumnContent(column, rect)
+                writeColumnContent(column, rect,gap)
             }
             is ImageCell -> {
                 when (column.type) {
@@ -172,7 +172,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
      * @param rect 区域限制
     * @return
     */
-    private fun writeColumnContent(column: TextCell, rect: Rect) {
+    private fun writeColumnContent(column: TextCell, rect: Rect,gap: Int) {
         val v = column.getValue()
         val writeLen = v.toCharArray().fold(0) { acc, c ->
             acc + c.len()
@@ -189,14 +189,14 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
         when (column.align) {
             Align.LEFT -> {
                 writeBytes(v.toByteArray(charset))
-                if (writeLen > width) {
+                if (writeLen >= width+gap) {
                     writeLf()
                 } else {
                     writeChar(' ', width - writeLen)
                 }
             }
             Align.CENTER -> {
-                if (writeLen <= width) {
+                if (writeLen <= width+gap) {
                     val padding = (width - writeLen) / 2
                     writeChar(' ', padding)
                     writeBytes(v.toByteArray(charset))
@@ -207,7 +207,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
                 }
             }
             Align.RIGHT -> {
-                if (writeLen <= width) {
+                if (writeLen <= width+gap) {
                     val padding = (width - writeLen)
                     writeChar(' ', padding)
                     writeBytes(v.toByteArray(charset))
