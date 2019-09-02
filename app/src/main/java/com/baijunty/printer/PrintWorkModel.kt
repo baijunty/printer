@@ -2,6 +2,8 @@ package com.baijunty.printer
 
 import android.content.Context
 import android.view.View
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
 import java.io.Closeable
 
 /**
@@ -11,18 +13,6 @@ import java.io.Closeable
  */
 interface PrintWorkModel : Closeable {
     var writer: PrinterWriter
-    fun print(context: Context,listener: PrinterListener)
-    fun preview(context: Context):View
-    fun cancel()
-}
-
-/**
- * 打印任为监听回调
- * [onSuccess]
- */
-interface PrinterListener{
-    /**
-     * [success]是否打印成功,[error]打印过程异常，包括格式不正确，打印机连接调用异常
-     */
-    fun onFinish(success:Boolean,error:Throwable?)
+    fun print(context: Context):Observable<Boolean>
+    fun preview(context: Context):Observable<View>
 }
