@@ -196,7 +196,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
                 }
             }
             Align.CENTER -> {
-                if (writeLen <= width+gap) {
+                if (writeLen < width+gap) {
                     val padding = (width - writeLen) / 2
                     writeChar(' ', padding)
                     writeBytes(v.toByteArray(charset))
@@ -207,7 +207,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
                 }
             }
             Align.RIGHT -> {
-                if (writeLen <= width+gap) {
+                if (writeLen < width+gap) {
                     val padding = (width - writeLen)
                     writeChar(' ', padding)
                     writeBytes(v.toByteArray(charset))
