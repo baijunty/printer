@@ -14,15 +14,19 @@ import kotlin.math.max
  * @property left 定义当前光标横向位置
  * @property writer 缓存写入内容
  */
-abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Charset,  rows: List<Row>) :
-    ContentWriter(printerType,charset,rows) {
+abstract class BlueToothWriter(
+    printerType: BlueToothPrinter.Type,
+    charset: Charset,
+    rows: List<Row>
+) :
+    ContentWriter(printerType, charset, rows) {
     var top = 0
     var left = 0
     protected val writer = ByteArrayOutputStream()
     /**
-    * @param row 行定义
-    * @return 根据[printerType]定义行每一列的列宽区域
-    */
+     * @param row 行定义
+     * @return 根据[printerType]定义行每一列的列宽区域
+     */
     private fun getRowRect(row: Row): List<Rect> {
         val len = printerType.len
         val size = row.columns.size
@@ -34,7 +38,8 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
         for ((index, column) in row.columns.withIndex()) {
             val rect = Rect()
             rect.left = left
-            rect.right = if (index == size - 1) len else (left + avgColLen * (column.weight)).toInt()
+            rect.right =
+                if (index == size - 1) len else (left + avgColLen * (column.weight)).toInt()
             left = rect.right + row.gap
             columnsRect.add(rect)
         }
@@ -44,7 +49,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
     /**
      * 已写入字节数
      */
-    protected fun size()=writer.size()
+    protected fun size() = writer.size()
 
     /**
      * 横向移动光标[num]位
@@ -58,7 +63,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
 
     /**
      * 写入[row]行数据
-    */
+     */
     protected open fun writeRow(row: Row) {
         if (row.rangeLimit) {
             writeLimitRow(row)
@@ -85,7 +90,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
         for (i in 0 until height) {
             for ((index, column) in row.columns.withIndex()) {
                 if (columnsPos[index] >= 0) {
-                    val rect=rects[index]
+                    val rect = rects[index]
                     when (column) {
                         is TextCell -> {
                             val width = rect.width()
@@ -98,16 +103,28 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
                                 end++
                             }
                             if (len > 0) {
-                                val c = TextCell(v.substring(start, end), column.style, column.align, OriginSupply, column.weight)
-                                needClean = needClean || writeColumn(c,rect,row.gap)
+                                val c = TextCell(
+                                    v.substring(start, end),
+                                    column.style,
+                                    column.align,
+                                    OriginSupply,
+                                    column.weight
+                                )
+                                needClean = needClean || writeColumn(c, rect, row.gap)
                                 columnsPos[index] = end
                             } else {
-                                val c = TextCell(" ", column.style, Align.FILL, OriginSupply, column.weight)
-                                writeColumn(c, rect,row.gap)
+                                val c = TextCell(
+                                    " ",
+                                    column.style,
+                                    Align.FILL,
+                                    OriginSupply,
+                                    column.weight
+                                )
+                                writeColumn(c, rect, row.gap)
                             }
                         }
                         is ImageCell -> {
-                            writeColumn(column, rect,row.gap)
+                            writeColumn(column, rect, row.gap)
                             columnsPos[index] = -1
                         }
                     }
@@ -119,6 +136,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
             clean()
         }
     }
+
     /**
      * 写入非受限列宽度受限[row]行数据
      */
@@ -126,7 +144,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
         val rects = getRowRect(row)
         var needClean = false
         for ((index, column) in row.columns.withIndex()) {
-            needClean = needClean || writeColumn(column, rects[index],row.gap)
+            needClean = needClean || writeColumn(column, rects[index], row.gap)
         }
         writeLf()
         if (needClean) {
@@ -138,7 +156,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
      * 根据[column]列写入格式和内容 [rect]写入区域
      * @return 是否写入打印机指令 true下一行需要清除特殊指令
      */
-    protected fun writeColumn(column: Cell<*>, rect: Rect,gap:Int): Boolean {
+    protected fun writeColumn(column: Cell<*>, rect: Rect, gap: Int): Boolean {
         when (column) {
             is TextCell -> {
                 if (column.style.bold) {
@@ -150,15 +168,19 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
                 if (column.style.underLine) {
                     writeUnderLine()
                 }
-                writeColumnContent(column, rect,gap)
+                writeColumnContent(column, rect, gap)
             }
             is ImageCell -> {
                 when (column.type) {
-                    ImageType.BARCODE -> writeBarCode(column.content,column.params[0])
-                    ImageType.QR_CODE -> writeQrCode(column.content,column.params[0],column.params[1])
+                    ImageType.BARCODE -> writeBarCode(column.content, column.params[0])
+                    ImageType.QR_CODE -> writeQrCode(
+                        column.content,
+                        column.params[0],
+                        column.params[1]
+                    )
                     ImageType.IMAGE -> {
-                        val b=column.getValue()
-                        writeBitmap(BitmapFactory.decodeByteArray(b,0,b.size))
+                        val b = column.getValue()
+                        writeBitmap(BitmapFactory.decodeByteArray(b, 0, b.size))
                     }
                 }
             }
@@ -168,11 +190,11 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
 
     /**
      * 根据对齐格式写入内容
-    * @param column 文本列
+     * @param column 文本列
      * @param rect 区域限制
-    * @return
-    */
-    protected fun writeColumnContent(column: TextCell, rect: Rect,gap: Int) {
+     * @return
+     */
+    protected fun writeColumnContent(column: TextCell, rect: Rect, gap: Int) {
         val v = column.getValue()
         val writeLen = v.toCharArray().fold(0) { acc, c ->
             acc + c.len()
@@ -189,14 +211,14 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
         when (column.align) {
             Align.LEFT -> {
                 writeBytes(v.toByteArray(charset))
-                if (writeLen >= width+gap) {
+                if (writeLen >= width + gap) {
                     writeLf()
                 } else {
                     writeChar(' ', width - writeLen)
                 }
             }
             Align.CENTER -> {
-                if (writeLen < width+gap) {
+                if (writeLen < width + gap) {
                     val padding = (width - writeLen) / 2
                     writeChar(' ', padding)
                     writeBytes(v.toByteArray(charset))
@@ -207,7 +229,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
                 }
             }
             Align.RIGHT -> {
-                if (writeLen < width+gap) {
+                if (writeLen < width + gap) {
                     val padding = (width - writeLen)
                     writeChar(' ', padding)
                     writeBytes(v.toByteArray(charset))
@@ -218,9 +240,9 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
             }
             Align.FILL -> {
                 var index = 0
-                var writeLeft=this.left
-                while (writeLeft< rect.right) {
-                    writeLeft+=v[index % v.length].len()
+                var writeLeft = this.left
+                while (writeLeft < rect.right) {
+                    writeLeft += v[index % v.length].len()
                     writeChar(v[index % v.length], 1)
                     index++
                 }
@@ -242,6 +264,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
      * 写入[num]个字节
      */
     protected fun writeChar(char: Char, num: Int = 1) = repeat(num) { writeChar(char, true) }
+
     /**
      * 写入[value]字节，[moveLeft]是否移动光标，写入指令不需要移动
      */
@@ -252,21 +275,21 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
         }
     }
 
-    val len:Int=writer.size()
+    val len: Int = writer.size()
 
     /**
      * 根据宽度[len]获取受限列[column]行数
      */
     protected fun getHeight(column: TextCell, len: Int): Int {
         val v = column.getValue()
-        var height=1
-        var l=0
-        for (c in v.toCharArray()){
-            if (l+c.len()>len){
-                l=0
+        var height = 1
+        var l = 0
+        for (c in v.toCharArray()) {
+            if (l + c.len() > len) {
+                l = 0
                 height++
             }
-            l+=c.len()
+            l += c.len()
         }
         return height
     }
@@ -291,6 +314,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
         }
         return writer.toByteArray()
     }
+
     /**
      * 检测格式并生成预览内容
      */

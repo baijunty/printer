@@ -15,7 +15,7 @@ import java.nio.charset.Charset
 
 @Suppress("UNCHECKED_CAST")
 sealed class PrintTaskBuilder {
-    protected val rows = mutableListOf<Row>()
+    val rows = mutableListOf<Row>()
     /**
     * @param
     * @return 当前总行数
@@ -81,7 +81,7 @@ sealed class PrintTaskBuilder {
     /**
      * 生成打印任为管理
      */
-    abstract fun build(): PrintWorkModel
+    abstract fun <W:PrinterWriter> build(writer: W?=null): PrintWorkModel
 }
 
 /**
@@ -94,7 +94,6 @@ sealed class PrintTaskBuilder {
  class BlueToothPrinterTaskBuilder(private var address: String): PrintTaskBuilder() {
     var charset: Charset = Charset.forName("GBK")
     var printerType: BlueToothPrinter.Type = BlueToothPrinter.Type.Type58
-    var writer: ContentWriter?=null
     var printTime:Int=1
 
     /**
@@ -175,21 +174,14 @@ sealed class PrintTaskBuilder {
          return this
      }
 
-    fun <T:ContentWriter> setPrinterWriter(cls:Class<T>){
-        val constructor= cls.getConstructor(BlueToothPrinter.Type::class.java,Charset::class.java, MutableList::class.java)
-         constructor.isAccessible=true
-        this.writer=constructor.newInstance(printerType,charset,rows)
-    }
-
     /**
      * 生成蓝牙打印任务
      */
-    override fun build(): PrintWorkModel {
+    override fun <W:PrinterWriter> build(writer: W?): PrintWorkModel {
         return BlueToothPrinter.BLUETOOTH_PRINTER.apply {
             printTime= this@BlueToothPrinterTaskBuilder.printTime
             address=this@BlueToothPrinterTaskBuilder.address
-            writer= if (this@BlueToothPrinterTaskBuilder.writer==null) CommonBluetoothWriter(printerType,charset,rows) else
-                this@BlueToothPrinterTaskBuilder.writer as PrinterWriter
+            this.writer= writer ?: CommonBluetoothWriter(printerType,charset,rows)
         }
     }
 }
@@ -255,8 +247,8 @@ class HtmlPrinterTaskBuilder: PrintTaskBuilder(){
     /**
      * 生成局域网打印任务
      */
-    override fun build(): PrintWorkModel {
-        return HtmlPrinter(HtmlWriter(rows))
+    override fun <W:PrinterWriter> build(writer: W?): PrintWorkModel {
+        return HtmlPrinter(writer?:HtmlWriter(rows))
     }
 }
 

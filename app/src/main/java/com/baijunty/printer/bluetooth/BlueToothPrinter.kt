@@ -167,13 +167,16 @@ class BlueToothPrinter private constructor(
     override fun print(context: Context): Observable<Boolean> {
         return Observable.just(writer)
             .map {
+                var s=false
                 for (i in 0 until printTime) {
-                    if (!tryWrite()) {
+                    s=tryWrite()
+                    if (!s) {
                         releaseSocket()
                         socket.outputStream.write(it.print())
+                        s=true
                     }
                 }
-                true
+                s
             }.subscribeOn(Schedulers.single())
             .observeOn(AndroidSchedulers.mainThread())
     }
