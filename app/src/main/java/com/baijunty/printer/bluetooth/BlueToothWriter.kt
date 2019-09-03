@@ -18,7 +18,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
     ContentWriter(printerType,charset,rows) {
     var top = 0
     var left = 0
-    private val writer = ByteArrayOutputStream()
+    protected val writer = ByteArrayOutputStream()
     /**
     * @param row 行定义
     * @return 根据[printerType]定义行每一列的列宽区域
@@ -49,7 +49,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
     /**
      * 横向移动光标[num]位
      */
-    private fun moveLeft(num: Int) {
+    protected fun moveLeft(num: Int) {
         left += num
         if (left >= printerType.len) {
             left %= printerType.len
@@ -70,7 +70,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
     /**
      * 写入列宽度受限[row]行数据
      */
-    private fun writeLimitRow(row: Row) {
+    protected open fun writeLimitRow(row: Row) {
         val rects = getRowRect(row)
         var height = 0
         if (row.rangeLimit) {
@@ -122,7 +122,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
     /**
      * 写入非受限列宽度受限[row]行数据
      */
-    private fun writeUnLimitRow(row: Row) {
+    protected open fun writeUnLimitRow(row: Row) {
         val rects = getRowRect(row)
         var needClean = false
         for ((index, column) in row.columns.withIndex()) {
@@ -138,7 +138,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
      * 根据[column]列写入格式和内容 [rect]写入区域
      * @return 是否写入打印机指令 true下一行需要清除特殊指令
      */
-    private fun writeColumn(column: Cell<*>, rect: Rect,gap:Int): Boolean {
+    protected fun writeColumn(column: Cell<*>, rect: Rect,gap:Int): Boolean {
         when (column) {
             is TextCell -> {
                 if (column.style.bold) {
@@ -172,7 +172,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
      * @param rect 区域限制
     * @return
     */
-    private fun writeColumnContent(column: TextCell, rect: Rect,gap: Int) {
+    protected fun writeColumnContent(column: TextCell, rect: Rect,gap: Int) {
         val v = column.getValue()
         val writeLen = v.toCharArray().fold(0) { acc, c ->
             acc + c.len()
@@ -241,7 +241,7 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
     /**
      * 写入[num]个字节
      */
-    private fun writeChar(char: Char, num: Int = 1) = repeat(num) { writeChar(char, true) }
+    protected fun writeChar(char: Char, num: Int = 1) = repeat(num) { writeChar(char, true) }
     /**
      * 写入[value]字节，[moveLeft]是否移动光标，写入指令不需要移动
      */
@@ -252,10 +252,12 @@ abstract class BlueToothWriter(printerType: BlueToothPrinter.Type, charset: Char
         }
     }
 
+    val len:Int=writer.size()
+
     /**
      * 根据宽度[len]获取受限列[column]行数
      */
-    private fun getHeight(column: TextCell, len: Int): Int {
+    protected fun getHeight(column: TextCell, len: Int): Int {
         val v = column.getValue()
         var height=1
         var l=0
