@@ -63,6 +63,7 @@ abstract class BlueToothWriter(
 
     /**
      * 写入[row]行数据
+     * @return 返回写入的行数
      */
     protected open fun writeRow(row: Row) {
         if (row.rangeLimit) {
@@ -70,27 +71,31 @@ abstract class BlueToothWriter(
         } else {
             writeUnLimitRow(row)
         }
+        val needClean =
+            row.columns.any { column -> column is TextCell && (column.style.bold || column.style.double) }
+        if (needClean) {
+            clean()
+        }
     }
 
     /**
      * 写入列宽度受限[row]行数据
      */
-    protected open fun writeLimitRow(row: Row) {
-        val rects = getRowRect(row)
+    protected open fun writeLimitRow(row: Row): Int {
+        val rs = getRowRect(row)
         var height = 0
         if (row.rangeLimit) {
             for ((index, column) in row.columns.withIndex()) {
                 if (column is TextCell) {
-                    height = max(height, getHeight(column, rects[index].width()))
+                    height = max(height, getHeight(column, rs[index].width()))
                 }
             }
         }
-        var needClean = false
         val columnsPos = IntArray(row.columns.size)
         for (i in 0 until height) {
             for ((index, column) in row.columns.withIndex()) {
                 if (columnsPos[index] >= 0) {
-                    val rect = rects[index]
+                    val rect = rs[index]
                     when (column) {
                         is TextCell -> {
                             val width = rect.width()
@@ -110,7 +115,7 @@ abstract class BlueToothWriter(
                                     OriginSupply,
                                     column.weight
                                 )
-                                needClean = needClean || writeColumn(c, rect, row.gap)
+                                writeColumn(c, rect, row.gap)
                                 columnsPos[index] = end
                             } else {
                                 val c = TextCell(
@@ -132,32 +137,26 @@ abstract class BlueToothWriter(
             }
         }
         writeLf()
-        if (needClean) {
-            clean()
-        }
+        return height
     }
 
     /**
      * 写入非受限列宽度受限[row]行数据
      */
     protected open fun writeUnLimitRow(row: Row) {
-        val rects = getRowRect(row)
-        var needClean = false
+        val rs = getRowRect(row)
         for ((index, column) in row.columns.withIndex()) {
-            needClean = needClean || writeColumn(column, rects[index], row.gap)
+            writeColumn(column, rs[index], row.gap)
         }
         writeLf()
-        if (needClean) {
-            clean()
-        }
     }
 
     /**
      * 根据[column]列写入格式和内容 [rect]写入区域
      * @return 是否写入打印机指令 true下一行需要清除特殊指令
      */
-    protected fun writeColumn(column: Cell<*>, rect: Rect, gap: Int): Boolean {
-        when (column) {
+    protected fun writeColumn(column: Cell<*>, rect: Rect, gap: Int) {
+        return when (column) {
             is TextCell -> {
                 if (column.style.bold) {
                     writeBold()
@@ -185,7 +184,6 @@ abstract class BlueToothWriter(
                 }
             }
         }
-        return column is TextCell && (column.style.bold || column.style.double)
     }
 
     /**

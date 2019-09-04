@@ -22,7 +22,7 @@ import kotlin.properties.Delegates
  * @property [writer]用于自定义设置[PrinterWriter]
  */
 
-class BlueToothPrinter private constructor(
+open class BlueToothPrinter(
     var printerWriter: PrinterWriter
 ) : PrintWorkModel {
     var printTime: Int = 1
@@ -104,7 +104,7 @@ class BlueToothPrinter private constructor(
     /**
      * 释放端口连接
      */
-    private fun releaseSocket() {
+    protected fun releaseSocket() {
         synchronized(BlueToothPrinter::class.java) {
             if (_socket?.isConnected == true) {
                 runCatching {
@@ -140,7 +140,7 @@ class BlueToothPrinter private constructor(
     private var _socket: BluetoothSocket? = null
 
     //使用端口
-    private val socket: BluetoothSocket
+    protected val socket: BluetoothSocket
         get() {
             if (_socket == null || !_socket!!.isConnected) {
                 val device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address)
@@ -211,7 +211,7 @@ class BlueToothPrinter private constructor(
         releaseSocket()
     }
 
-    private fun tryWrite(): Boolean {
+    protected fun tryWrite(): Boolean {
         return runCatching {
             socket.outputStream.write(writer.print())
             true
