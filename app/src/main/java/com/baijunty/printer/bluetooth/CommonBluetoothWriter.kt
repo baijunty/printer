@@ -15,7 +15,7 @@ open class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset, 
         /**
          * 讲图片[bmpOriginal]按宽度[targetWidth]转换成打印机支持的灰度图
         */
-        private fun toGrayScale(bmpOriginal: Bitmap, targetWidth: Int): Bitmap {
+         fun toGrayScale(bmpOriginal: Bitmap, targetWidth: Int): Bitmap {
             val height = bmpOriginal.height
             val width = bmpOriginal.width
             var bmpGraysSale = Bitmap.createBitmap(width, height,Bitmap.Config.ARGB_8888)

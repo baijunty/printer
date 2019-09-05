@@ -27,7 +27,7 @@ abstract class BlueToothWriter(
      * @param row 行定义
      * @return 根据[printerType]定义行每一列的列宽区域
      */
-    private fun getRowRect(row: Row): List<Rect> {
+    protected fun getRowRect(row: Row): List<Rect> {
         val len = printerType.len
         val size = row.columns.size
         val leftSpace = len - (row.gap) * (size - 1)

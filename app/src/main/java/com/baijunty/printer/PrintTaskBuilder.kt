@@ -4,7 +4,6 @@ import android.annotation.TargetApi
 import android.os.Build
 import com.baijunty.printer.bluetooth.BlueToothPrinter
 import com.baijunty.printer.bluetooth.CommonBluetoothWriter
-import com.baijunty.printer.bluetooth.ContentWriter
 import com.baijunty.printer.html.HtmlPrinter
 import com.baijunty.printer.html.HtmlWriter
 import java.nio.charset.Charset
@@ -81,7 +80,7 @@ sealed class PrintTaskBuilder {
     /**
      * 生成打印任为管理
      */
-    abstract fun <W:PrinterWriter> build(writer: W?=null): PrintWorkModel
+    abstract fun build(): PrintWorkModel
 }
 
 /**
@@ -177,11 +176,11 @@ sealed class PrintTaskBuilder {
     /**
      * 生成蓝牙打印任务
      */
-    override fun <W:PrinterWriter> build(writer: W?): PrintWorkModel {
+    override fun  build(): PrintWorkModel {
         return printer?:BlueToothPrinter.BLUETOOTH_PRINTER.apply {
             printTime= this@BlueToothPrinterTaskBuilder.printTime
             address=this@BlueToothPrinterTaskBuilder.address
-            this.writer= writer ?: CommonBluetoothWriter(printerType,charset,rows)
+            this.writer= CommonBluetoothWriter(printerType,charset,rows)
         }
     }
 }
@@ -230,8 +229,7 @@ class HtmlPrinterTaskBuilder: PrintTaskBuilder(){
     override fun newLine(limit:Boolean): HtmlRowBuilder {
         val row = Row(rangeLimit = limit)
         rows.add(row)
-        val builder = HtmlRowBuilder(row, this)
-        return builder
+        return HtmlRowBuilder(row, this)
     }
     /**
      *[func]生成行内容，[limit]控制列宽严格受限
@@ -247,8 +245,8 @@ class HtmlPrinterTaskBuilder: PrintTaskBuilder(){
     /**
      * 生成局域网打印任务
      */
-    override fun <W:PrinterWriter> build(writer: W?): PrintWorkModel {
-        return HtmlPrinter(writer?:HtmlWriter(rows))
+    override fun build(): PrintWorkModel {
+        return HtmlPrinter(HtmlWriter(rows))
     }
 }
 

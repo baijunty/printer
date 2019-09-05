@@ -84,7 +84,7 @@ open class BlueToothPrinter(
          * @param
          * @return 打印机类型支持最大列数
          */
-        private fun getMaxColumns(): Int = when (this) {
+        protected fun getMaxColumns(): Int = when (this) {
             Type58 -> 5
             Type80 -> 7
             Type110 -> 10
@@ -94,7 +94,7 @@ open class BlueToothPrinter(
          * @param
          * @return 是否超过最大列支持
          */
-        private fun isColumnsOutLimit(columnNum: Int): Boolean {
+        protected fun isColumnsOutLimit(columnNum: Int): Boolean {
             val maxColumn = getMaxColumns()
             return columnNum > maxColumn
         }
@@ -137,7 +137,7 @@ open class BlueToothPrinter(
     }
 
     //端口
-    private var _socket: BluetoothSocket? = null
+    protected var _socket: BluetoothSocket? = null
 
     //使用端口
     protected val socket: BluetoothSocket
