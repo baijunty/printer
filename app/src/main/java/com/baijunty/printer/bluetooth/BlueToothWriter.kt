@@ -171,15 +171,14 @@ abstract class BlueToothWriter(
             }
             is ImageCell -> {
                 when (column.type) {
-                    ImageType.BARCODE -> writeBarCode(column.content, column.params[0])
-                    ImageType.QR_CODE -> writeQrCode(
+                    is BarCode  -> writeBarCode(column.content,column.type.type, column.width,column.height)
+                    QRCode -> writeQrCode(
                         column.content,
-                        column.params[0],
-                        column.params[1]
+                        column.width,column.height
                     )
-                    ImageType.IMAGE -> {
+                    Image -> {
                         val b = column.getValue()
-                        writeBitmap(BitmapFactory.decodeByteArray(b, 0, b.size))
+                        writeBitmap(BitmapFactory.decodeByteArray(b, 0, b.size),column.width,column.height)
                     }
                 }
             }

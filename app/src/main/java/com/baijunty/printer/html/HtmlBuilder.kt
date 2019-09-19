@@ -1,11 +1,14 @@
 package com.baijunty.printer.html
 
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.util.Base64
+import com.baijunty.printer.BarCodeType
 import com.baijunty.printer.FormatWriter
 import com.baijunty.printer.toBarCodeBitmap
 import com.baijunty.printer.toQrCodeBitmap
 import java.io.ByteArrayOutputStream
+import kotlin.math.min
 
 /**
  * HTML文档定义生成，[name]Tag名称,[content]内容
@@ -56,11 +59,19 @@ open class Tag(val name: String, var content: HtmlTagWriter? = null) : HtmlTagWr
         cls("double")
     }
 
-    override fun writeBitmap(bitmap:Bitmap) {
+    override fun writeBitmap(bitmap:Bitmap,width: Int,height: Int) {
         tag("img"){
             prop("src"){
                 val out= ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.PNG,100,out)
+                if (bitmap.width*bitmap.height!=width*height&&width*height>100){
+                    val m = Matrix()
+                    val scale = width.toFloat() / bitmap.width.toFloat()
+                    m.postScale(scale, scale)
+                    val b = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, m, true)
+                    b.compress(Bitmap.CompressFormat.PNG,100,out)
+                } else{
+                    bitmap.compress(Bitmap.CompressFormat.PNG,100,out)
+                }
                 "data:image/png;base64,"+ Base64.encodeToString(out.toByteArray(),Base64.DEFAULT)
             }
             ""
@@ -70,11 +81,14 @@ open class Tag(val name: String, var content: HtmlTagWriter? = null) : HtmlTagWr
     override fun writeQrCode(v: String, width: Int, height: Int) {
         val w=if (width<=0) 400 else width
         val h=if (height<=0) w else height
-        writeBitmap(toQrCodeBitmap(v,w,h))
+        val useSize= min(w,h)
+        writeBitmap(toQrCodeBitmap(v,useSize,useSize),useSize,useSize)
     }
 
-    override fun writeBarCode(v: String, type: Int) {
-        writeBitmap(toBarCodeBitmap(v,type==72))
+    override fun writeBarCode(v: String, type: BarCodeType, width: Int, height: Int) {
+        val w=if (width<=0) 400 else width
+        val h=if (height<=0) w else height
+        writeBitmap(toBarCodeBitmap(v,type==BarCodeType.Code128,w,h),w,h)
     }
 
     override fun writeUnderLine() {

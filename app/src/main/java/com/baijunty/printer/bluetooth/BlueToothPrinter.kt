@@ -90,6 +90,12 @@ open class BlueToothPrinter(
             Type110 -> 10
         }
 
+        fun getImageWidth():Int=when(this){
+            Type58 -> 400
+            Type80 -> 560
+            Type110 -> 704
+        }
+
         /**
          * @param
          * @return 是否超过最大列支持

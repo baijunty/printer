@@ -28,7 +28,7 @@ interface FormatWriter {
     * @param bitmap 待写入图片
     * @return
     */
-    fun writeBitmap(bitmap: Bitmap)
+    fun writeBitmap(bitmap: Bitmap,width:Int,height:Int)
     /**
     * 二维码写入
      * @param v 二维码内容
@@ -40,7 +40,7 @@ interface FormatWriter {
     * @param v 条码内容
     * @return
     */
-    fun writeBarCode(v: String,type:Int)
+    fun writeBarCode(v: String,type:BarCodeType,width:Int,height:Int)
     /**
      * 下划线
     * @param

@@ -34,16 +34,16 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
                                 is ImageCell -> {
                                     tag("div"){
                                         when (it.type) {
-                                            ImageType.BARCODE -> {
-                                                writeBarCode(it.content,it.params[0])
+                                            is BarCode -> {
+                                                writeBarCode(it.content,it.type.type,it.width,it.height)
                                             }
-                                            ImageType.QR_CODE -> {
-                                                writeQrCode(it.content,it.params[0],it.params[1])
+                                            QRCode -> {
+                                                writeQrCode(it.content,it.width,it.height)
                                             }
-                                            ImageType.IMAGE -> {
+                                            Image -> {
                                                 val bytes = it.getValue()
                                                 val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                                                writeBitmap(bitmap)
+                                                writeBitmap(bitmap,it.width,it.height)
                                             }
                                         }
                                         ""

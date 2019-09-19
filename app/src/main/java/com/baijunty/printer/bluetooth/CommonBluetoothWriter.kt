@@ -1,6 +1,7 @@
 package com.baijunty.printer.bluetooth
 
 import android.graphics.*
+import com.baijunty.printer.BarCodeType
 import com.baijunty.printer.Row
 import com.baijunty.printer.toQrCodeBitmap
 import java.nio.charset.Charset
@@ -55,21 +56,16 @@ open class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset, 
      * 生成[v]二维码图片后打印
      */
     override fun writeQrCode(v: String, width:Int, height:Int) {
-        val w=if (width<=0) when(printerType){
-            BlueToothPrinter.Type.Type58 -> 400
-            BlueToothPrinter.Type.Type80 -> 540
-            BlueToothPrinter.Type.Type110 -> 700
-        } else width
+        val w=if (width<=0) printerType.getImageWidth() else min(width,printerType.getImageWidth())
         val h=if (height<=0) w else height
-        writeBitmap(toQrCodeBitmap(v,w,h))
+        val useSize= min(w,h)
+        writeBitmap(toQrCodeBitmap(v,useSize,useSize),useSize,useSize)
     }
-    /**
-     * 打印图片[bitmap]
-     */
-    override fun writeBitmap(bitmap: Bitmap) {
+
+    override fun writeBitmap(bitmap: Bitmap, width: Int, height: Int) {
         writeCenter()
         val mode=0
-        val len= printerType.len*12
+        val len= if (width*height>100) min(printerType.getImageWidth(),width) else printerType.getImageWidth()
         val scaleWidth= min(((bitmap.width+7)/8)*8,len)
         val printBitmap = toGrayScale(bitmap, scaleWidth)
         val width = printBitmap.width
@@ -111,17 +107,17 @@ open class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset, 
     /**
      * 打印[v]条形码
      */
-    override fun writeBarCode(v: String,type:Int) {
+    override fun writeBarCode(v: String, type: BarCodeType, width: Int, height: Int) {
         writeCenter()
         val contentByte = v.toByteArray(charset)
         val len = contentByte.size
         val bytes = ByteArray(len + 4)
-        if (type < 7) {
-            System.arraycopy(byteArrayOf(0x1D, 0x6B, type.toByte()), 0, bytes, 0, 3)
+        if (type.value < 7) {
+            System.arraycopy(byteArrayOf(0x1D, 0x6B, type.value.toByte()), 0, bytes, 0, 3)
             System.arraycopy(contentByte, 0, bytes, 3, len)
             bytes[bytes.lastIndex] = 0x0
         } else {
-            System.arraycopy(byteArrayOf(0x1D, 0x6B, type.toByte(), len.toByte()), 0, bytes, 0, 4)
+            System.arraycopy(byteArrayOf(0x1D, 0x6B, type.value.toByte(), len.toByte()), 0, bytes, 0, 4)
             System.arraycopy(contentByte, 0, bytes, 4, len)
         }
         writeBytes(bytes,false)

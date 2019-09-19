@@ -48,7 +48,7 @@ class TextCell(val content:String, val style: Style = DEFAULT_STYLE, val align: 
  */
 @Suppress("UNCHECKED_CAST")
 class ImageCell(val content:String, val type: ImageType,supply: Supply<ByteArray, ImageCell> = EmptyBytesSupply, weight:Int=1,
-                val params:IntArray):
+                val width:Int=-1,val height:Int=-1):
         Cell<ByteArray>(supply as Supply<ByteArray, Cell<ByteArray>>,weight)
 
 /**
@@ -71,6 +71,21 @@ data class Style(
 /**
  * 图片格式
  */
-enum class ImageType{
-    BARCODE,QR_CODE,IMAGE
+enum class BarCodeType(val value:Int){
+    Code128(73),Code93(72),UPCA(65),CODE39(69),CODABAR(71);
+
+    override fun toString(): String{
+        return when(this){
+            Code128 -> "128"
+            Code93 -> "93"
+            UPCA -> "UPCA"
+            CODE39 -> "39"
+            CODABAR -> "CODA"
+        }
+    }
+
 }
+sealed class ImageType
+class BarCode(val type: BarCodeType):ImageType()
+object QRCode : ImageType()
+object Image : ImageType()
