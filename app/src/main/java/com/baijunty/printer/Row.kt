@@ -52,6 +52,12 @@ class ImageCell(val content:String, val type: ImageType,supply: Supply<ByteArray
         Cell<ByteArray>(supply as Supply<ByteArray, Cell<ByteArray>>,weight)
 
 /**
+ * 额外原生指令
+ */
+@Suppress("UNCHECKED_CAST")
+class CommandCell(supply: Supply<ByteArray, CommandCell>): Cell<ByteArray>(supply as Supply<ByteArray, Cell<ByteArray>>,1)
+
+/**
  * 文本对齐
  */
 enum class Align{

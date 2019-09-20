@@ -50,6 +50,7 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
                                     }
                                     ""
                                 }
+                                is CommandCell -> ""
                             }
                         }
                     }

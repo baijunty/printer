@@ -178,6 +178,13 @@ sealed class PrintTaskBuilder {
          return this
      }
 
+
+    fun command(supply: Supply<ByteArray, CommandCell>):BlueToothPrinterTaskBuilder{
+        val row = Row()
+        row.columns.add(CommandCell(supply))
+        rows.add(row)
+        return this
+    }
     /**
      * 生成蓝牙打印任务
      */

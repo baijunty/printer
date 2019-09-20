@@ -132,6 +132,7 @@ abstract class BlueToothWriter(
                             writeColumn(column, rect, row.gap)
                             columnsPos[index] = -1
                         }
+                        is CommandCell->writeBytes(column.getValue(),false)
                     }
                 }
             }
@@ -182,6 +183,7 @@ abstract class BlueToothWriter(
                     }
                 }
             }
+            is CommandCell->writeBytes(column.getValue(),false)
         }
     }
 

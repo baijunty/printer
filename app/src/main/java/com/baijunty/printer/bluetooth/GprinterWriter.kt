@@ -27,7 +27,7 @@ TEXT 0,700,"TSS24.BF2",0,1,1,"总金额:16500.00"
 TEXT 0,980,"TSS24.BF2",0,1,1,"打印日期:2018-12-17 11:14:12"
 PRINT 1 打印份数
  */
-class GprinterWriter(type: BlueToothPrinter.Type, charset: Charset, rows:List<Row>): BlueToothWriter(type,charset,rows) {
+open class GprinterWriter(type: BlueToothPrinter.Type, charset: Charset, rows:List<Row>): BlueToothWriter(type,charset,rows) {
 
     private fun writeCommand(command:String){
         writeBytes(command.toByteArray(charset),false)
@@ -39,14 +39,16 @@ class GprinterWriter(type: BlueToothPrinter.Type, charset: Charset, rows:List<Ro
         BlueToothPrinter.Type.Type110 -> 110
     }
 
-    private fun initPrinter(height: Int) {
+    protected  open fun initPrinter(height: Int,cut:Boolean=false) {
         val size=getSize()
         var str = "SIZE $size mm,${height} mm\r\n"
         writeCommand(str)
         str = "GAP 0 mm,0 mm\r\n"
         writeCommand(str)
-        str = "SET TEAR " + 1 + "\r\n"
-        writeCommand(str)
+        if (cut){
+            str="SET CUTTER 1\r\n"
+            writeCommand(str)
+        }
         str = "CLS\r\n"
         writeCommand(str)
         clean()
@@ -170,17 +172,19 @@ class GprinterWriter(type: BlueToothPrinter.Type, charset: Charset, rows:List<Ro
                     is TextCell ->
                         max(height, (getHeight(column, rs[index].width())+if (column.style.double) 1 else 0)*3)
                     is ImageCell ->getImageCellHeight(column)
+                    is CommandCell -> 0
                 }
             }
             height
         } else {
             var height=3
             for ((index, column) in row.columns.withIndex()) {
-                when(column){
+                height=when(column){
                     is TextCell ->{
-                        height+=(getHeight(column, rs[index].width())-1+if (column.style.double) 1 else 0)*3
+                        height+(getHeight(column, rs[index].width())-1+if (column.style.double) 1 else 0)*3
                     }
-                    is ImageCell ->height =getImageCellHeight(column)
+                    is ImageCell ->getImageCellHeight(column)
+                    is CommandCell -> 0
                 }
             }
             height
