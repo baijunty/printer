@@ -29,11 +29,11 @@ PRINT 1 打印份数
  */
 open class GprinterWriter(type: BlueToothPrinter.Type, charset: Charset, rows:List<Row>): BlueToothWriter(type,charset,rows) {
 
-    private fun writeCommand(command:String){
+    protected fun writeCommand(command:String){
         writeBytes(command.toByteArray(charset),false)
     }
 
-    private fun getSize():Int=when(printerType){
+    protected fun getSize():Int=when(printerType){
         BlueToothPrinter.Type.Type58 -> 58
         BlueToothPrinter.Type.Type80 -> 80
         BlueToothPrinter.Type.Type110 -> 110
@@ -137,18 +137,18 @@ open class GprinterWriter(type: BlueToothPrinter.Type, charset: Charset, rows:Li
     override fun writeUnderLine() {
     }
 
-    private fun finish(){
+    protected open fun finish(){
         val str = "PRINT 1\r\n"
         writeCommand(str)
     }
 
-    private fun calcuteTotalHeight():Int{
+    protected fun calcuteTotalHeight():Int{
         return rows.fold(0){acc, row ->
             acc+getRowHeight(row)
         }
     }
 
-    private fun getImageCellHeight(cell: ImageCell):Int{
+    protected fun getImageCellHeight(cell: ImageCell):Int{
         return when(cell.type) {
             is BarCode-> if (cell.height<0) 15 else cell.height/8+3
             QRCode -> 27
@@ -163,7 +163,7 @@ open class GprinterWriter(type: BlueToothPrinter.Type, charset: Charset, rows:Li
         }
     }
 
-    private fun getRowHeight(row: Row):Int{
+    protected fun getRowHeight(row: Row):Int{
         val rs=getRowRect(row)
         return if (row.rangeLimit){
             var height=3
