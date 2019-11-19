@@ -1,12 +1,12 @@
 package com.baijunty.printer.html
 
 import android.annotation.SuppressLint
+import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
 import android.print.PrintAttributes
 import android.print.PrintJob
 import android.print.PrintManager
-import android.support.annotation.RequiresApi
 import android.view.View
 import android.webkit.WebView
 import com.baijunty.printer.PrintWorkModel
@@ -18,7 +18,7 @@ import io.reactivex.schedulers.Schedulers
 /**
  * 使用[htmlWriter]生成内容
  */
-@RequiresApi(Build.VERSION_CODES.KITKAT)
+@TargetApi(Build.VERSION_CODES.KITKAT)
 class HtmlPrinter(private var htmlWriter: PrinterWriter): PrintWorkModel {
     override var writer: PrinterWriter
         get() = htmlWriter
