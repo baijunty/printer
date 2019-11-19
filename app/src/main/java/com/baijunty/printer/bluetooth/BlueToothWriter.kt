@@ -35,13 +35,24 @@ abstract class BlueToothWriter(
         val avgColLen = leftSpace.toDouble() / totalWeight.toDouble()
         val columnsRect = ArrayList<Rect>(size)
         var left = 0
-        for ((index, column) in row.columns.withIndex()) {
-            val rect = Rect()
-            rect.left = left
-            rect.right =
-                if (index == size - 1) len else (left + avgColLen * (column.weight)).toInt()
-            left = rect.right + row.gap
-            columnsRect.add(rect)
+        if (avgColLen>2){
+            for ((index, column) in row.columns.withIndex()) {
+                val rect = Rect()
+                rect.left = left
+                rect.right =
+                    if (index == size - 1) len else (left + avgColLen * (column.weight)).toInt()
+                left = rect.right + row.gap
+                columnsRect.add(rect)
+            }
+        } else {
+            for ((index, column) in row.columns.withIndex()) {
+                val rect = Rect()
+                rect.left = left
+                rect.right =
+                    if (index == size - 1) len else (left + avgColLen * (column.weight)).toInt()
+                left = if (rect.right + row.gap>len) rect.right + row.gap-len else rect.right + row.gap
+                columnsRect.add(rect)
+            }
         }
         return columnsRect
     }

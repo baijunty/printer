@@ -61,8 +61,6 @@ open class BlueToothPrinter(
          * @throws IllegalArgumentException 格式不支持或设置异常
          */
         fun checkRowIllegal(row: Row) {
-            val size = row.columns.size
-            require(!isColumnsOutLimit(size)) { "列数大于打印机支持最大列${getMaxColumns()}" }
             require(row.columns.isNotEmpty()) { "内容不能为空" }
             require(row.gap >= WORD) { "间距不能小于等于0" }
             require(!row.columns.any { it.weight < 1 }) { "列宽不能小于等于2" }
@@ -74,10 +72,6 @@ open class BlueToothPrinter(
                     }
                 }
             }
-            val leftSpace = len - (row.gap) * (size - 1)
-            val totalWeight = row.columns.fold(0) { acc, column -> acc + column.weight }
-            val avgColLen = leftSpace.toFloat() / totalWeight.toFloat()
-            require(row.columns.minBy { it.weight }!!.weight * avgColLen >= WORD) { "列宽不能小于等于2" }
         }
 
         /**
