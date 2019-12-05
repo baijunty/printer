@@ -78,15 +78,15 @@ open class BlueToothPrinter(
          * @param
          * @return 打印机类型支持最大列数
          */
-        protected fun getMaxColumns(): Int = when (this) {
+        fun getMaxColumns(): Int = when (this) {
             Type58 -> 5
             Type80 -> 7
             Type110 -> 10
         }
 
         fun getImageWidth():Int=when(this){
-            Type58 -> 400
-            Type80 -> 560
+            Type58 -> 384
+            Type80 -> 528
             Type110 -> 704
         }
 
@@ -94,7 +94,7 @@ open class BlueToothPrinter(
          * @param
          * @return 是否超过最大列支持
          */
-        protected fun isColumnsOutLimit(columnNum: Int): Boolean {
+        fun isColumnsOutLimit(columnNum: Int): Boolean {
             val maxColumn = getMaxColumns()
             return columnNum > maxColumn
         }
