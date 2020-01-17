@@ -17,12 +17,12 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
     private fun buildHtmlContent(): String {
         return html(border) {
             rows.forEach {
-                tag("div"){
+                tag("div") {
                     cls("flex-container")
                     it.columns.forEach {
-                        tag("div"){
+                        tag("div") {
                             style {
-                                string("flex-basis"){
+                                string("flex-basis") {
                                     "${it.weight}00%"
                                 }
                             }
@@ -32,18 +32,27 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
                                     writeContentByAlign(it)
                                 }
                                 is ImageCell -> {
-                                    tag("div"){
+                                    tag("div") {
                                         when (it.type) {
                                             is BarCode -> {
-                                                writeBarCode(it.content,it.type.type,it.width,it.height)
+                                                writeBarCode(
+                                                    it.content,
+                                                    it.type.type,
+                                                    it.width,
+                                                    it.height
+                                                )
                                             }
                                             QRCode -> {
-                                                writeQrCode(it.content,it.width,it.height)
+                                                writeQrCode(it.content, it.width, it.height)
                                             }
                                             Image -> {
                                                 val bytes = it.getValue()
-                                                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                                                writeBitmap(bitmap,it.width,it.height)
+                                                val bitmap = BitmapFactory.decodeByteArray(
+                                                    bytes,
+                                                    0,
+                                                    bytes.size
+                                                )
+                                                writeBitmap(bitmap, it.width, it.height)
                                             }
                                         }
                                         ""
@@ -64,7 +73,7 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
      * 设置文字效果
      * @param cell 要设置的单元格
      */
-    private fun Tag.writeStyle(cell: TextCell){
+    private fun Tag.writeStyle(cell: TextCell) {
         //双倍大小
         if (cell.style.double) {
             writeHeighten()
@@ -84,25 +93,25 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
      * @param cell 要写入的单元格
      * 返回空字符
      */
-    private fun Tag.writeContentByAlign(cell: TextCell):String{
+    private fun Tag.writeContentByAlign(cell: TextCell): String {
         return when (cell.align) {
             Align.CENTER -> {
                 cls("center")
-                tag("div"){
+                tag("div") {
                     cell.getValue()
                 }
                 ""
             }
             Align.RIGHT -> {
                 cls("right")
-                tag("div"){
+                tag("div") {
                     cell.getValue()
                 }
                 ""
             }
             Align.LEFT -> {
                 cls("left")
-                tag("div"){
+                tag("div") {
                     cell.getValue()
                 }
                 ""
@@ -120,4 +129,5 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
      */
     override fun preview(): CharSequence = buildHtmlContent()
 
+    override fun toString(): String = preview().toString()
 }

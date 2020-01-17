@@ -5,6 +5,9 @@ import com.baijunty.printer.PrinterWriter
 import com.baijunty.printer.Row
 import java.nio.charset.Charset
 
-abstract class ContentWriter(protected val printerType: BlueToothPrinter.Type, protected val charset: Charset, protected val rows: List<Row>):
-    PrinterWriter,
-    FormatWriter
+abstract class ContentWriter(
+    protected val printerType: BlueToothPrinter.Type, protected val charset: Charset,
+    protected val rows: List<Row>
+) : PrinterWriter, FormatWriter {
+    override fun toString(): String = preview().toString()
+}
