@@ -28,6 +28,9 @@ abstract class BlueToothWriter(
      * @return 根据[printerType]定义行每一列的列宽区域
      */
     protected fun getRowRect(row: Row): List<Rect> {
+        if (row.anchor>=0&&rows[row.anchor].columns.size>=row.columns.size){
+            return getRowRect(rows[row.anchor])
+        }
         val len = printerType.len
         val size = row.columns.size
         val leftSpace = len - (row.gap) * (size - 1)
@@ -48,8 +51,11 @@ abstract class BlueToothWriter(
             for ((index, column) in row.columns.withIndex()) {
                 val rect = Rect()
                 rect.left = left
+                val length=if (column is TextCell) column.getValue().fold(0){acc, c ->
+                    acc+c.len()
+                } else avgColLen.toInt()
                 rect.right =
-                    if (index == size - 1) len else (left + avgColLen * (column.weight)).toInt()
+                    if (index == size - 1) len else (left + length * (column.weight))
                 left = if (rect.right + row.gap>len) rect.right + row.gap-len else rect.right + row.gap
                 columnsRect.add(rect)
             }

@@ -75,7 +75,7 @@ sealed class PrintTaskBuilder {
         return this
     }
 
-    abstract fun newLine(limit:Boolean=false): RowBuilder
+    abstract fun newLine(limit:Boolean=false,anchor: Int=-1): RowBuilder
 
     /**
      * 生成打印任为管理
@@ -139,8 +139,8 @@ sealed class PrintTaskBuilder {
      *行内容生成，支持多列
      * @param limit 是否列宽严格受限
      */
-    override fun newLine(limit:Boolean): BlueToothRowBuilder {
-        val row = Row(rangeLimit = limit)
+    override fun newLine(limit:Boolean,anchor:Int): BlueToothRowBuilder {
+        val row = Row(rangeLimit = limit,anchor = anchor)
         rows.add(row)
         return BlueToothRowBuilder(row, this)
     }
@@ -149,8 +149,8 @@ sealed class PrintTaskBuilder {
      *使用行内容[func]列生成，支持多列
      * @param limit 是否列宽严格受限
      */
-    fun newLine(limit:Boolean=false,func: BlueToothRowBuilder.() -> Unit): BlueToothPrinterTaskBuilder {
-        val row = Row(rangeLimit = limit)
+    fun newLine(limit:Boolean=false,anchor: Int=-1,func: BlueToothRowBuilder.() -> Unit): BlueToothPrinterTaskBuilder {
+        val row = Row(rangeLimit = limit,anchor = anchor)
         rows.add(row)
         val builder = BlueToothRowBuilder(row, this)
         builder.func()
@@ -243,8 +243,8 @@ class HtmlPrinterTaskBuilder: PrintTaskBuilder(){
     /**
      *行内容生成器，[limit]控制列宽严格受限
      */
-    override fun newLine(limit:Boolean): HtmlRowBuilder {
-        val row = Row(rangeLimit = limit)
+    override fun newLine(limit:Boolean,anchor: Int): HtmlRowBuilder {
+        val row = Row(rangeLimit = limit,anchor = anchor)
         rows.add(row)
         return HtmlRowBuilder(row, this)
     }

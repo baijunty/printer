@@ -23,10 +23,10 @@ val EmptyBytesSupply: Supply<ByteArray, ImageCell> = object : Supply<ByteArray, 
 }
 
 /**
- * 行定义 [gap]列间距,[rangeLimit]列宽是否严格受限
+ * 行定义 [gap]列间距,[rangeLimit]列宽是否严格受限,[anchor]参考行，用于蓝牙打印对齐
  * @property columns 每行的数据列
  */
-class Row(val gap:Int= WORD, val rangeLimit:Boolean=false) {
+class Row(val gap:Int= WORD, val rangeLimit:Boolean=false,val anchor:Int=-1) {
     val columns= mutableListOf<Cell<*>>()
 }
 
