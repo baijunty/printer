@@ -15,61 +15,71 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
      * @return 页面内容字符
      */
     private fun buildHtmlContent(): String {
+        val chunk=mutableListOf<MutableList<Row>>()
+        rows.fold(-1){ acc, row ->
+            val group=if (acc!=row.columns.size){
+                val g=mutableListOf<Row>()
+                chunk.add(g)
+                g
+            } else chunk.last()
+            group.add(row)
+            row.columns.size
+        }
         return html(border) {
-            rows.fold(0) {acc,it->
-                val row:Tag.()->String = {
-                    tag("tr"){
-                        it.columns.forEach {
-                            tag("td") {
-                                when (it) {
-                                    is TextCell -> {
-                                        writeStyle(it)
-                                        writeContentByAlign(it)
-                                    }
-                                    is ImageCell -> {
-                                        tag("div") {
-                                            when (it.type) {
-                                                is BarCode -> {
-                                                    writeBarCode(
-                                                        it.content,
-                                                        it.type.type,
-                                                        it.width,
-                                                        it.height
-                                                    )
-                                                }
-                                                QRCode -> {
-                                                    writeQrCode(it.content, it.width, it.height)
-                                                }
-                                                Image -> {
-                                                    val bytes = it.getValue()
-                                                    val bitmap = BitmapFactory.decodeByteArray(
-                                                        bytes,
-                                                        0,
-                                                        bytes.size
-                                                    )
-                                                    writeBitmap(bitmap, it.width, it.height)
-                                                }
-                                            }
-                                            ""
-                                        }
-                                        ""
-                                    }
-                                    is CommandCell -> ""
-                                }
-                            }
-                        }
-                        ""
+            chunk.forEach{
+                tag("table"){
+                    it.forEach {
+                        this.writeRow(it)
                     }
                     ""
                 }
-                if (acc!=it.columns.size){
-                    tag("table",row)
-                } else {
-                    this.row()
-                }
-                it.columns.size
             }
         }.toString()
+    }
+
+    private fun Tag.writeRow(row: Row){
+        tag("tr"){
+            row.columns.forEach {
+                tag("td") {
+                    when (it) {
+                        is TextCell -> {
+                            writeStyle(it)
+                            writeContentByAlign(it)
+                        }
+                        is ImageCell -> {
+                            tag("div") {
+                                when (it.type) {
+                                    is BarCode -> {
+                                        writeBarCode(
+                                            it.content,
+                                            it.type.type,
+                                            it.width,
+                                            it.height
+                                        )
+                                    }
+                                    QRCode -> {
+                                        writeQrCode(it.content, it.width, it.height)
+                                    }
+                                    Image -> {
+                                        val bytes = it.getValue()
+                                        val bitmap = BitmapFactory.decodeByteArray(
+                                            bytes,
+                                            0,
+                                            bytes.size
+                                        )
+                                        writeBitmap(bitmap, it.width, it.height)
+                                    }
+                                }
+                                ""
+                            }
+                            ""
+                        }
+                        is CommandCell -> ""
+                    }
+                }
+            }
+            ""
+        }
     }
 
     /**

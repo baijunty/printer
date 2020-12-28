@@ -17,6 +17,16 @@ internal class HtmlPrinterTaskBuilderTest {
         val builder= HtmlPrinterTaskBuilder()
         builder.line("werwewerwe",bold = true,align = Align.CENTER)
         val task=builder
+            .newLine {
+                string("1")
+                string("2")
+                string("sdfsdfdsfsdfwerwrewerwerewrewr")
+            }
+            .newLine {
+                string("1")
+                string("2")
+                string("sdfsdfdsfsdfwerwrewerwerewrewr")
+            }
             .build()
         val result=task.writer.preview()
         print(result)
