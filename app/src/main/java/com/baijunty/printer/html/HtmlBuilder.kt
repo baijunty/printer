@@ -269,7 +269,7 @@ fun html(border:Int=1,init: Tag.() -> Unit): Tag {
 
     td,
     th {
-      border: 1px solid rgb(190, 190, 190);
+      border: 1px solid rgb(100, 100, 100);
       padding: 10px 10px;
       text-align: center;
       overflow-wrap: anywhere;
