@@ -252,7 +252,7 @@ fun html(border:Int=1,init: Tag.() -> Unit): Tag {
     }
 
     .flex-container>div {
-      border: 1px solid black;
+      border: ${border}px solid black;
       color: blank;
       display: flex;
       justify-content: center;
@@ -262,7 +262,7 @@ fun html(border:Int=1,init: Tag.() -> Unit): Tag {
     table {
       width: 100%;
       border-collapse: collapse;
-      border: 1px solid rgb(200, 200, 200);
+      border: ${border}px solid rgb(200, 200, 200);
       letter-spacing: 1px;
       table-layout: fixed;
     }
@@ -270,7 +270,7 @@ fun html(border:Int=1,init: Tag.() -> Unit): Tag {
     td,
     th {
       border: 1px solid rgb(190, 190, 190);
-      padding: 10px 20px;
+      padding: 10px 10px;
       text-align: center;
       overflow-wrap: anywhere;
     }
