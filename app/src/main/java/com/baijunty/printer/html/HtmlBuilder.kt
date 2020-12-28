@@ -244,42 +244,69 @@ fun html(border:Int=1,init: Tag.() -> Unit): Tag {
     val head= Tag("head")
     head.addChild(
         ConstWrite("""
-        <style>
-      .flex-container {
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-}
+  <style>
+    .flex-container {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
 
-.flex-container > div {
-border:1px solid black;
-  color: blank;
-  display: flex;
-  justify-content: center;
-  flex-flow: column wrap;
-}
-         .center{
-           text-align: center;
-         }
-         .right{
-           text-align: right;
-         }
-         .left{
-           text-align: left;
-         }
-         .underline {
-            text-decoration:underline
-         }
-         .double{
-           font-size:200%;
-         }
-         .half{
-           width:50%
-         }
-         .bold{
-            font-weight:bold;
-         }
-         </style>
+    .flex-container>div {
+      border: 1px solid black;
+      color: blank;
+      display: flex;
+      justify-content: center;
+      flex-flow: column wrap;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid rgb(200, 200, 200);
+      letter-spacing: 1px;
+      table-layout: fixed;
+    }
+
+    td,
+    th {
+      border: 1px solid rgb(190, 190, 190);
+      padding: 10px 20px;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+
+    caption {
+      padding: 10px;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .left {
+      text-align: left;
+    }
+
+    .underline {
+      text-decoration: underline
+    }
+
+    .double {
+      font-size: 200%;
+    }
+
+    .half {
+      width: 50%
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+  </style>
             """
     )
     )

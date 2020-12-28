@@ -16,55 +16,58 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
      */
     private fun buildHtmlContent(): String {
         return html(border) {
-            rows.forEach {
-                tag("div") {
-                    cls("flex-container")
-                    it.columns.forEach {
-                        tag("div") {
-                            style {
-                                string("flex-basis") {
-                                    "${it.weight}00%"
-                                }
-                            }
-                            when (it) {
-                                is TextCell -> {
-                                    writeStyle(it)
-                                    writeContentByAlign(it)
-                                }
-                                is ImageCell -> {
-                                    tag("div") {
-                                        when (it.type) {
-                                            is BarCode -> {
-                                                writeBarCode(
-                                                    it.content,
-                                                    it.type.type,
-                                                    it.width,
-                                                    it.height
-                                                )
+            rows.fold(0) {acc,it->
+                val row:Tag.()->String = {
+                    tag("tr"){
+                        it.columns.forEach {
+                            tag("td") {
+                                when (it) {
+                                    is TextCell -> {
+                                        writeStyle(it)
+                                        writeContentByAlign(it)
+                                    }
+                                    is ImageCell -> {
+                                        tag("div") {
+                                            when (it.type) {
+                                                is BarCode -> {
+                                                    writeBarCode(
+                                                        it.content,
+                                                        it.type.type,
+                                                        it.width,
+                                                        it.height
+                                                    )
+                                                }
+                                                QRCode -> {
+                                                    writeQrCode(it.content, it.width, it.height)
+                                                }
+                                                Image -> {
+                                                    val bytes = it.getValue()
+                                                    val bitmap = BitmapFactory.decodeByteArray(
+                                                        bytes,
+                                                        0,
+                                                        bytes.size
+                                                    )
+                                                    writeBitmap(bitmap, it.width, it.height)
+                                                }
                                             }
-                                            QRCode -> {
-                                                writeQrCode(it.content, it.width, it.height)
-                                            }
-                                            Image -> {
-                                                val bytes = it.getValue()
-                                                val bitmap = BitmapFactory.decodeByteArray(
-                                                    bytes,
-                                                    0,
-                                                    bytes.size
-                                                )
-                                                writeBitmap(bitmap, it.width, it.height)
-                                            }
+                                            ""
                                         }
                                         ""
                                     }
-                                    ""
+                                    is CommandCell -> ""
                                 }
-                                is CommandCell -> ""
                             }
                         }
+                        ""
                     }
                     ""
                 }
+                if (acc!=it.columns.size){
+                    tag("table",row)
+                } else {
+                    this.row()
+                }
+                it.columns.size
             }
         }.toString()
     }
