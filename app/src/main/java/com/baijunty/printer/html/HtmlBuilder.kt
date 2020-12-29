@@ -241,24 +241,14 @@ fun Tag.table(init: Table.() -> Unit) {
 
 fun html(border:Int=1,init: Tag.() -> Unit): Tag {
     val html = Tag("html")
+    html.addProperty(Property("lang").apply {
+        content=ConstWrite("zh-CN")
+    })
     val head= Tag("head")
     head.addChild(
         ConstWrite("""
+            <meta charset="utf-8"/>
   <style>
-    .flex-container {
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
-    }
-
-    .flex-container>div {
-      border: ${border}px solid black;
-      color: blank;
-      display: flex;
-      justify-content: center;
-      flex-flow: column wrap;
-    }
-
     table {
       width: 100%;
       border-collapse: collapse;
@@ -273,6 +263,7 @@ fun html(border:Int=1,init: Tag.() -> Unit): Tag {
       padding: 10px 10px;
       text-align: center;
       overflow-wrap: anywhere;
+      word-break: break-all;
     }
 
     caption {

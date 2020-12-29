@@ -2,6 +2,7 @@ package com.baijunty.printer.html
 
 import android.graphics.BitmapFactory
 import com.baijunty.printer.*
+import java.lang.StringBuilder
 
 class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : PrinterWriter {
     /**
@@ -16,6 +17,7 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
      */
     private fun buildHtmlContent(): String {
         val chunk=mutableListOf<MutableList<Row>>()
+        val sb=StringBuilder("<!DOCTYPE html>")
         rows.fold(-1){ acc, row ->
             val group=if (acc!=row.columns.size){
                 val g=mutableListOf<Row>()
@@ -25,7 +27,7 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
             group.add(row)
             row.columns.size
         }
-        return html(border) {
+        html(border) {
             chunk.forEach{
                 tag("table"){
                     it.forEach {
@@ -34,7 +36,8 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
                     ""
                 }
             }
-        }.toString()
+        }.write(sb)
+        return sb.toString()
     }
 
     private fun Tag.writeRow(row: Row){
