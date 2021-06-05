@@ -12,7 +12,6 @@ import java.io.Closeable
  * @property writer 用于生成打印内容
  */
 interface PrintWorkModel : Closeable {
-    var writer: PrinterWriter
     fun print(context: Context):Observable<Boolean>
     fun preview(context: Context):Observable<View>
 }

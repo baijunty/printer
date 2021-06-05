@@ -19,15 +19,9 @@ import io.reactivex.schedulers.Schedulers
  * 使用[htmlWriter]生成内容
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
-class HtmlPrinter(private var htmlWriter: PrinterWriter): PrintWorkModel {
-    override var writer: PrinterWriter
-        get() = htmlWriter
-        set(value) {
-            htmlWriter=value
-        }
+class HtmlPrinter(private val htmlWriter: PrinterWriter): PrintWorkModel {
     /**
      * 生成HTML文档并打印
-     * [listener]回调打印结果
      */
     override fun print(context: Context): Observable<Boolean> {
         var job: PrintJob?=null
@@ -52,7 +46,7 @@ class HtmlPrinter(private var htmlWriter: PrinterWriter): PrintWorkModel {
      */
     @SuppressLint("SetJavaScriptEnabled")
     override fun preview(context: Context): Observable<View> {
-        return Observable.just(writer)
+        return Observable.just(htmlWriter)
             .map { it.preview().toString() }
             .observeOn(AndroidSchedulers.mainThread())
             .map {

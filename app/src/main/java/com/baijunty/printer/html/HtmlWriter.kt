@@ -1,15 +1,16 @@
 package com.baijunty.printer.html
 
 import android.graphics.BitmapFactory
+import android.util.Log
 import com.baijunty.printer.*
+import java.io.InputStream
+import java.io.OutputStream
 import java.lang.StringBuilder
 
 class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : PrinterWriter {
-    /**
-     * 正是打印字节，html页面使用预览页面即可
-     * @return 空
-     */
-    override fun print(): ByteArray = byteArrayOf()
+    override fun printData(stream: OutputStream, inputStream: InputStream) {
+        Log.i("htmlWriter","do nothing")
+    }
 
     /**
      * 正式正成HTML页面

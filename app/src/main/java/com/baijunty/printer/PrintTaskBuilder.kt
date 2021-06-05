@@ -80,7 +80,7 @@ sealed class PrintTaskBuilder {
     /**
      * 生成打印任为管理
      */
-    abstract fun build(): PrintWorkModel
+    abstract fun build(writer: PrinterWriter?=null): PrintWorkModel
 }
 
 /**
@@ -179,20 +179,20 @@ sealed class PrintTaskBuilder {
      }
 
 
-    fun command(supply: Supply<ByteArray, CommandCell>):BlueToothPrinterTaskBuilder{
+    fun command(supply: Supply<ByteArray, CommandCell>, outData:ByteArray = ByteArray(0)):BlueToothPrinterTaskBuilder{
         val row = Row()
-        row.columns.add(CommandCell(supply))
+        row.columns.add(CommandCell(supply,outData))
         rows.add(row)
         return this
     }
     /**
      * 生成蓝牙打印任务
      */
-    override fun  build(): PrintWorkModel {
+    override fun  build(writer: PrinterWriter?): PrintWorkModel {
         return printer?:BlueToothPrinter.BLUETOOTH_PRINTER.apply {
             printTime= this@BlueToothPrinterTaskBuilder.printTime
             address=this@BlueToothPrinterTaskBuilder.address
-            this.writer= CommonBluetoothWriter(printerType,charset,rows)
+            this.printerWriter= writer?:CommonBluetoothWriter(printerType,charset,rows)
         }
     }
 }
@@ -262,8 +262,8 @@ class HtmlPrinterTaskBuilder: PrintTaskBuilder(){
     /**
      * 生成局域网打印任务
      */
-    override fun build(): PrintWorkModel {
-        return HtmlPrinter(HtmlWriter(rows))
+    override fun build(writer: PrinterWriter?): PrintWorkModel {
+        return HtmlPrinter(writer?:HtmlWriter(rows))
     }
 }
 

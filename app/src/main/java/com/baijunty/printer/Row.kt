@@ -55,7 +55,7 @@ class ImageCell(val content:String, val type: ImageType,supply: Supply<ByteArray
  * 额外原生指令
  */
 @Suppress("UNCHECKED_CAST")
-class CommandCell(supply: Supply<ByteArray, CommandCell>): Cell<ByteArray>(supply as Supply<ByteArray, Cell<ByteArray>>,1)
+class CommandCell(supply: Supply<ByteArray, CommandCell>,val outData:ByteArray): Cell<ByteArray>(supply as Supply<ByteArray, Cell<ByteArray>>,1)
 
 /**
  * 文本对齐

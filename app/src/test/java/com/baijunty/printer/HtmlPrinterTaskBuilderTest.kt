@@ -1,6 +1,9 @@
 package com.baijunty.printer
 
+import com.baijunty.printer.EncryptUtil.md5
 import org.junit.Test
+import java.text.SimpleDateFormat
+import java.util.*
 
 internal class HtmlPrinterTaskBuilderTest {
     @org.junit.jupiter.api.BeforeEach
@@ -14,21 +17,11 @@ internal class HtmlPrinterTaskBuilderTest {
 
     @Test
     fun test(){
-        val builder= HtmlPrinterTaskBuilder()
-        builder.line("werwewerwe",bold = true,align = Align.CENTER)
-        val task=builder
-            .newLine {
-                string("1")
-                string("2")
-                string("sdfsdfdsfsdfwerwrewerwerewrewr")
-            }
-            .newLine {
-                string("1")
-                string("2")
-                string("sdfsdfdsfsdfwerwrewerwerewrewr")
-            }
-            .build()
-        val result=task.writer.preview()
-        print(result)
+        val d=Date().apply {
+            time=System.currentTimeMillis()
+        }
+        val t=SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(d)
+        println(t)
+        println("".md5())
     }
 }

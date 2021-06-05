@@ -4,6 +4,8 @@ import android.graphics.*
 import android.util.Log
 import com.baijunty.printer.*
 import com.baijunty.printer.bluetooth.CommonBluetoothWriter.Companion.toGrayScale
+import java.io.InputStream
+import java.io.OutputStream
 import java.nio.charset.Charset
 import kotlin.math.max
 import kotlin.math.min
@@ -191,16 +193,18 @@ open class GprinterWriter(type: BlueToothPrinter.Type, charset: Charset, rows:Li
         }
     }
 
-    override fun print(): ByteArray {
-        writer.reset()
+    override fun printData(stream: OutputStream, inputStream: InputStream) {
         rows.forEach {
             printerType.checkRowIllegal(it)
             initPrinter(getRowHeight(it))
+            writer.reset()
             writeRow(it)
+            stream.write(writer.toByteArray())
             finish()
+            val cell=it.columns.firstOrNull()
+            if (cell is CommandCell&&cell.outData.isNotEmpty()){
+                inputStream.read(cell.outData)
+            }
         }
-        val b= writer.toByteArray()
-        Log.e("print content",b.toString(charset))
-        return b
     }
 }

@@ -43,12 +43,6 @@ open class BlueToothPrinter(
         }
     }
 
-    override var writer: PrinterWriter
-        get() = printerWriter
-        set(value) {
-            printerWriter = value
-        }
-
     /**
      * 打印机类型
      */
@@ -84,7 +78,7 @@ open class BlueToothPrinter(
             Type110 -> 10
         }
 
-        fun getImageWidth():Int=when(this){
+        fun getImageWidth(): Int = when (this) {
             Type58 -> 384
             Type80 -> 528
             Type110 -> 704
@@ -108,8 +102,6 @@ open class BlueToothPrinter(
         synchronized(BlueToothPrinter::class.java) {
             if (_socket?.isConnected == true) {
                 runCatching {
-                    _socket!!.outputStream.close()
-                    _socket!!.inputStream.close()
                     _socket!!.close()
                 }
                 _socket = null
@@ -165,19 +157,19 @@ open class BlueToothPrinter(
      * @return
      */
     override fun print(context: Context): Observable<Boolean> {
-        return Observable.just(writer)
+        return Observable.just(printerWriter)
+            .observeOn(Schedulers.single())
             .map {
-                var s=false
+                var s = false
                 for (i in 0 until printTime) {
-                    s=tryWrite()
+                    s = tryWrite()
                     if (!s) {
                         releaseSocket()
-                        socket.outputStream.write(it.print())
-                        s=true
+                        s = tryWrite()
                     }
                 }
                 s
-            }.subscribeOn(Schedulers.single())
+            }
             .observeOn(AndroidSchedulers.mainThread())
     }
 
@@ -186,7 +178,7 @@ open class BlueToothPrinter(
      */
     @SuppressLint("SetJavaScriptEnabled")
     override fun preview(context: Context): Observable<View> {
-        return Observable.just(writer)
+        return Observable.just(printerWriter)
             .map { it.preview().toString() }
             .observeOn(AndroidSchedulers.mainThread())
             .map {
@@ -200,7 +192,7 @@ open class BlueToothPrinter(
                 settings.javaScriptEnabled = true
                 settings.setSupportZoom(true)
                 view.loadDataWithBaseURL(null, it, "text/HTML", "UTF-8", null)
-                view as View
+                view  as View
             }.subscribeOn(Schedulers.single())
     }
 
@@ -211,9 +203,9 @@ open class BlueToothPrinter(
         releaseSocket()
     }
 
-    protected fun tryWrite(): Boolean {
+    private fun tryWrite(): Boolean {
         return runCatching {
-            socket.outputStream.write(writer.print())
+            printerWriter.printData(DelegateOutputStream(socket.outputStream),DelegateInputStream(socket.inputStream))
             true
         }.getOrDefault(false)
     }

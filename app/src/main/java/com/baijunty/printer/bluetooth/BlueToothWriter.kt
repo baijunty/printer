@@ -5,6 +5,8 @@ import android.graphics.Rect
 import com.baijunty.printer.*
 import com.baijunty.printer.html.HtmlWriter
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
+import java.io.OutputStream
 import java.nio.charset.Charset
 import kotlin.math.max
 
@@ -66,8 +68,8 @@ abstract class BlueToothWriter(
     /**
      * 已写入字节数
      */
-    protected fun size() = writer.size()
-
+    val len: Int
+        get() = writer.size()
     /**
      * 横向移动光标[num]位
      */
@@ -291,8 +293,6 @@ abstract class BlueToothWriter(
         }
     }
 
-    val len: Int = writer.size()
-
     /**
      * 根据宽度[len]获取受限列[column]行数
      */
@@ -322,13 +322,17 @@ abstract class BlueToothWriter(
     /**
      * 检测格式并生成打印内容
      */
-    override fun print(): ByteArray {
-        writer.reset()
-        rows.forEach {
-            printerType.checkRowIllegal(it)
-            writeRow(it)
+    override fun printData(stream: OutputStream, inputStream: InputStream) {
+        rows.forEach { row ->
+            printerType.checkRowIllegal(row)
+            writer.reset()
+            writeRow(row)
+            stream.write(writer.toByteArray())
+            val cell=row.columns.firstOrNull()
+            if (cell is CommandCell&&cell.outData.isNotEmpty()){
+                inputStream.read(cell.outData)
+            }
         }
-        return writer.toByteArray()
     }
 
     /**
