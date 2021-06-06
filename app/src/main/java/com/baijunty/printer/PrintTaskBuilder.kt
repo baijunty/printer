@@ -6,6 +6,8 @@ import com.baijunty.printer.bluetooth.BlueToothPrinter
 import com.baijunty.printer.bluetooth.CommonBluetoothWriter
 import com.baijunty.printer.html.HtmlPrinter
 import com.baijunty.printer.html.HtmlWriter
+import com.baijunty.printer.lan.JolimarkPrinterLanWriter
+import com.baijunty.printer.lan.LanPrinter
 import java.nio.charset.Charset
 
 /**
@@ -90,7 +92,7 @@ sealed class PrintTaskBuilder {
  * @property printerType 打印机类型 默认为58打印机
  */
 @Suppress("UNCHECKED_CAST")
- class BlueToothPrinterTaskBuilder(private var address: String): PrintTaskBuilder() {
+ open class BlueToothPrinterTaskBuilder(private var address: String): PrintTaskBuilder() {
     var charset: Charset = Charset.forName("GBK")
     var printerType: BlueToothPrinter.Type = BlueToothPrinter.Type.Type58
     var printTime:Int=1
@@ -193,6 +195,16 @@ sealed class PrintTaskBuilder {
             printTime= this@BlueToothPrinterTaskBuilder.printTime
             address=this@BlueToothPrinterTaskBuilder.address
             this.printerWriter= writer?:CommonBluetoothWriter(printerType,charset,rows)
+        }
+    }
+}
+
+class LanPrinterTaskBuilder(val address: String, private val port:Int):BlueToothPrinterTaskBuilder(address){
+    var isEsc:Boolean=true
+    override fun build(writer: PrinterWriter?): PrintWorkModel {
+        return LanPrinter(writer?: JolimarkPrinterLanWriter(printerType,charset,rows,isEsc),port).apply {
+            printTime= this@LanPrinterTaskBuilder.printTime
+            address=this@LanPrinterTaskBuilder.address
         }
     }
 }

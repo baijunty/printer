@@ -6,12 +6,12 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.os.Build
-import android.view.View
-import android.webkit.WebView
 import com.baijunty.printer.*
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.io.InputStream
+import java.io.OutputStream
 import java.nio.charset.Charset
 import java.util.*
 import kotlin.properties.Delegates
@@ -23,9 +23,8 @@ import kotlin.properties.Delegates
  */
 
 open class BlueToothPrinter(
-    var printerWriter: PrinterWriter
-) : PrintWorkModel {
-    var printTime: Int = 1
+    printerWriter: PrinterWriter
+) : AbstractSocketPrinter(printerWriter) {
 
     companion object {
         @JvmStatic
@@ -35,12 +34,6 @@ open class BlueToothPrinter(
                 emptyList()
             )
         )
-    }
-
-    var address: String by Delegates.observable("") { _, o, n ->
-        if (o != n && BluetoothAdapter.checkBluetoothAddress(n)) {
-            releaseSocket()
-        }
     }
 
     /**
@@ -94,6 +87,11 @@ open class BlueToothPrinter(
         }
     }
 
+    override fun createSocket() {
+        kotlin.runCatching {
+            socket.outputStream.write(byteArrayOf(0x1b,0x40))
+        }
+    }
 
     /**
      * 释放端口连接
@@ -152,62 +150,13 @@ open class BlueToothPrinter(
     }
 
     /**
-     ** 正式打印
-     ** @param context
-     * @return
-     */
-    override fun print(context: Context): Observable<Boolean> {
-        return Observable.just(printerWriter)
-            .observeOn(Schedulers.single())
-            .map {
-                var s = false
-                for (i in 0 until printTime) {
-                    s = tryWrite()
-                    if (!s) {
-                        releaseSocket()
-                        s = tryWrite()
-                    }
-                }
-                s
-            }
-            .observeOn(AndroidSchedulers.mainThread())
-    }
-
-    /**
-     * [context]生成预览数据View
-     */
-    @SuppressLint("SetJavaScriptEnabled")
-    override fun preview(context: Context): Observable<View> {
-        return Observable.just(printerWriter)
-            .map { it.preview().toString() }
-            .observeOn(AndroidSchedulers.mainThread())
-            .map {
-                val view = WebView(context)
-                val settings = view.settings
-                settings.javaScriptCanOpenWindowsAutomatically = true
-                settings.allowContentAccess = true
-                settings.useWideViewPort = true
-                settings.loadWithOverviewMode = true
-                settings.builtInZoomControls = true
-                settings.javaScriptEnabled = true
-                settings.setSupportZoom(true)
-                view.loadDataWithBaseURL(null, it, "text/HTML", "UTF-8", null)
-                view  as View
-            }.subscribeOn(Schedulers.single())
-    }
-
-    /**
      * 生命周期管理，active结束时断开连接
      */
     override fun close() {
         releaseSocket()
     }
 
-    private fun tryWrite(): Boolean {
-        return runCatching {
-            printerWriter.printData(DelegateOutputStream(socket.outputStream),DelegateInputStream(socket.inputStream))
-            true
-        }.getOrDefault(false)
-    }
+    override fun getOutputStream(): OutputStream = socket.outputStream
 
+    override fun getInputStream(): InputStream = socket.inputStream
 }

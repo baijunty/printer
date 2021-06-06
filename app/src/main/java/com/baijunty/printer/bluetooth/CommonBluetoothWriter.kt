@@ -86,12 +86,12 @@ open class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset, 
         command[3] = mode.toByte()
         command[4] = (lineNum and 0xff).toByte()
         command[5] = ((lineNum ushr 8) and 0xff).toByte()
-        command[6] = 0x01
-        command[7] = 0x00
+        command[6] = (height and 0xff).toByte()
+        command[7] = ((height ushr 8) and 0xff).toByte()
         var k = 0
         val b = ByteArray(lineNum)
+        writeBytes(command,false)
         for (i in 0 until height) {
-            writeBytes(command,false)
             for (j in 0 until lineNum) {
                 b[j] = (0 until 8).foldIndexed(0) { index, acc, _ ->
                     val d = data[k + index].toInt()
