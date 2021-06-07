@@ -6,7 +6,10 @@ import com.baijunty.printer.bluetooth.BlueToothPrinter
 import com.baijunty.printer.bluetooth.CommonBluetoothWriter
 import com.baijunty.printer.html.HtmlPrinter
 import com.baijunty.printer.html.HtmlWriter
-import com.baijunty.printer.lan.JolimarkPrinterLanWriter
+import com.baijunty.printer.jolimark.JolimarkBluetoothPrinterWriter
+import com.baijunty.printer.jolimark.JolimarkPrinterLanWriter
+import com.baijunty.printer.jolimark.enums.ConnectTypeEnum
+import com.baijunty.printer.jolimark.enums.PrinterEnum
 import com.baijunty.printer.lan.LanPrinter
 import java.nio.charset.Charset
 
@@ -104,6 +107,16 @@ sealed class PrintTaskBuilder {
         super.line(value)
         return this
     }
+
+    fun setPrinterType(type:BlueToothPrinter.Type): BlueToothPrinterTaskBuilder {
+        printerType=type
+        return this
+    }
+
+    fun setPrintTime(time:Int):BlueToothPrinterTaskBuilder {
+        printTime=time
+        return this
+    }
     /**
      *@see [PrintTaskBuilder.line]
      */
@@ -199,12 +212,43 @@ sealed class PrintTaskBuilder {
     }
 }
 
-class LanPrinterTaskBuilder(val address: String, private val port:Int):BlueToothPrinterTaskBuilder(address){
-    var isEsc:Boolean=true
+class JolimarkPrinterTaskBuilder(val address: String):BlueToothPrinterTaskBuilder(address){
+    private var printerEnum:PrinterEnum = PrinterEnum.CLP180
+    private var connectType:ConnectTypeEnum =ConnectTypeEnum.BLUETOOTH
+    private var isEsc =true
+    fun setPrinter(printerEnum: PrinterEnum):JolimarkPrinterTaskBuilder{
+        this.printerEnum=printerEnum
+        return this
+    }
+
+    fun setConnectType(connectTypeEnum: ConnectTypeEnum):JolimarkPrinterTaskBuilder{
+        connectType=connectTypeEnum
+        return this
+    }
+
+    fun useHtml():JolimarkPrinterTaskBuilder{
+        isEsc=false
+        return this
+    }
+
     override fun build(writer: PrinterWriter?): PrintWorkModel {
-        return LanPrinter(writer?: JolimarkPrinterLanWriter(printerType,charset,rows,isEsc),port).apply {
-            printTime= this@LanPrinterTaskBuilder.printTime
-            address=this@LanPrinterTaskBuilder.address
+        return when (connectType) {
+            ConnectTypeEnum.BLUETOOTH -> BlueToothPrinter.BLUETOOTH_PRINTER.apply {
+                printTime = this@JolimarkPrinterTaskBuilder.printTime
+                address = this@JolimarkPrinterTaskBuilder.address
+                this.printerWriter =
+                    writer ?: JolimarkBluetoothPrinterWriter(printerType, charset, rows, isEsc)
+            }
+            ConnectTypeEnum.LAN -> LanPrinter(
+                writer ?: if (isEsc) CommonBluetoothWriter(printerType, charset, rows)
+                else
+                    JolimarkPrinterLanWriter(printerType, charset, rows),
+                if (isEsc) 19100 else 10001
+            ).apply {
+                printTime = this@JolimarkPrinterTaskBuilder.printTime
+                address = this@JolimarkPrinterTaskBuilder.address
+            }
+            ConnectTypeEnum.WLAN -> TODO()
         }
     }
 }

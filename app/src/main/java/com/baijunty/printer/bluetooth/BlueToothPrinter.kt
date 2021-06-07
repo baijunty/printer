@@ -88,9 +88,6 @@ open class BlueToothPrinter(
     }
 
     override fun createSocket() {
-        kotlin.runCatching {
-            socket.outputStream.write(byteArrayOf(0x1b,0x40))
-        }
     }
 
     /**
@@ -156,7 +153,7 @@ open class BlueToothPrinter(
         releaseSocket()
     }
 
-    override fun getOutputStream(): OutputStream = socket.outputStream
+    override fun getOutputStream(): OutputStream = DelegateOutputStream(socket.outputStream)
 
-    override fun getInputStream(): InputStream = socket.inputStream
+    override fun getInputStream(): InputStream = DelegateInputStream(socket.inputStream)
 }

@@ -110,17 +110,16 @@ open class CommonBluetoothWriter(type: BlueToothPrinter.Type, charset: Charset, 
     override fun writeBarCode(v: String, type: BarCodeType, width: Int, height: Int) {
         writeCenter()
         val contentByte = v.toByteArray(charset)
-        val len = contentByte.size
-        val bytes = ByteArray(len + 4)
-        if (type.value < 7) {
-            System.arraycopy(byteArrayOf(0x1D, 0x6B, type.value.toByte()), 0, bytes, 0, 3)
-            System.arraycopy(contentByte, 0, bytes, 3, len)
-            bytes[bytes.lastIndex] = 0x0
+        if (type.value < 65) {
+            writeBytes(byteArrayOf(0x1d,0x6b,type.value.toByte()),false)
+            writeBytes(contentByte,false)
+            writeBytes(byteArrayOf(0x0),false)
         } else {
-            System.arraycopy(byteArrayOf(0x1D, 0x6B, type.value.toByte(), len.toByte()), 0, bytes, 0, 4)
-            System.arraycopy(contentByte, 0, bytes, 4, len)
+            val len = contentByte.size
+            writeBytes(byteArrayOf(0x1d,0x6b,type.value.toByte(),len.toByte()),false)
+            writeBytes(contentByte,false)
         }
-        writeBytes(bytes,false)
+        writeLf()
         clean()
         writeLf()
     }

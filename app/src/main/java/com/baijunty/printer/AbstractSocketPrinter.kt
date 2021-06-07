@@ -80,11 +80,10 @@ abstract class AbstractSocketPrinter(var printerWriter: PrinterWriter): PrintWor
 
     protected fun tryWrite(): Boolean {
         return runCatching {
-            printerWriter.printData(
-                DelegateOutputStream(getOutputStream()),
-                DelegateInputStream(getInputStream())
-            )
+            printerWriter.printData(getOutputStream(),getInputStream())
             true
+        }.onFailure {
+            it.printStackTrace()
         }.getOrDefault(false)
     }
 }

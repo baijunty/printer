@@ -25,7 +25,6 @@ class LanPrinter(
         }
 
     override fun createSocket() {
-        close()
         socket.soTimeout=1000*50
         socket.connect(InetSocketAddress(address,port))
     }
@@ -39,9 +38,9 @@ class LanPrinter(
     }
 
     override fun close() {
-        _socket?.getOutputStream()?.close()
-        _socket?.getInputStream()?.close()
-        _socket?.close()
+        if (_socket?.isClosed==false){
+            _socket?.close()
+        }
         _socket=null
     }
 }
