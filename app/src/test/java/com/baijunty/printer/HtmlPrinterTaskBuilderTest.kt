@@ -1,9 +1,7 @@
 package com.baijunty.printer
 
-import com.baijunty.printer.EncryptUtil.md5
 import org.junit.Test
-import java.net.InetAddress
-import java.text.SimpleDateFormat
+import java.io.File
 import java.util.*
 
 internal class HtmlPrinterTaskBuilderTest {
@@ -18,6 +16,8 @@ internal class HtmlPrinterTaskBuilderTest {
 
     @Test
     fun test(){
-        println(InetAddress.getLocalHost())
+        val b=Base64.getDecoder().decode(File("d://5003.txt").readText())
+        println(b.size)
+        File("d://test.jpg").writeBytes(b)
     }
 }

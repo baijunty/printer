@@ -1,15 +1,11 @@
-package com.baijunty.printer.lan
+package com.baijunty.printer.net
 
-import android.content.Context
 import com.baijunty.printer.AbstractSocketPrinter
 import com.baijunty.printer.PrinterWriter
-import io.reactivex.Observable
 import java.io.InputStream
 import java.io.OutputStream
-import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.net.SocketAddress
 
 class LanPrinter(
     printerWriter: PrinterWriter, private val port:Int
