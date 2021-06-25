@@ -30,6 +30,9 @@ abstract class AbstractSocketPrinter(var printerWriter: PrinterWriter): PrintWor
 
     abstract fun getInputStream():InputStream
 
+    override val writer: PrinterWriter
+        get() = printerWriter
+
     /**
      ** 正式打印
      ** @param context

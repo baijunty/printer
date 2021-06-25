@@ -11,6 +11,10 @@ import io.reactivex.schedulers.Schedulers
 import java.net.HttpURLConnection
 
 class HttpPrinter(val printerWriter: PrinterWriter):PrintWorkModel {
+
+    override val writer: PrinterWriter
+        get() = printerWriter
+
     override fun print(context: Context): Observable<Boolean> {
         TODO("Not yet implemented")
     }

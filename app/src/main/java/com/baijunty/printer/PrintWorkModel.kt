@@ -14,4 +14,5 @@ import java.io.Closeable
 interface PrintWorkModel : Closeable {
     fun print(context: Context):Observable<Boolean>
     fun preview(context: Context):Observable<View>
+    val writer:PrinterWriter
 }

@@ -3,7 +3,7 @@ package com.baijunty.printer
 import java.security.MessageDigest
 
 object EncryptUtil {
-    fun String.md5():String{
+    fun String.md5(uppercase:Boolean=false):String{
         val md = MessageDigest.getInstance("MD5")
         md.update(this.toByteArray())
         val b = md.digest()
@@ -13,6 +13,8 @@ object EncryptUtil {
             if (i < 16) buf.append("0")
             buf.append(Integer.toHexString(i))
         }
-        return buf.toString()
+        return buf.toString().let {
+            if (uppercase) it.uppercase() else it
+        }
     }
 }

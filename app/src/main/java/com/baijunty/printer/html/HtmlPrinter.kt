@@ -20,6 +20,10 @@ import io.reactivex.schedulers.Schedulers
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
 class HtmlPrinter(private val htmlWriter: PrinterWriter): PrintWorkModel {
+
+    override val writer: PrinterWriter
+        get() = htmlWriter
+
     /**
      * 生成HTML文档并打印
      */
