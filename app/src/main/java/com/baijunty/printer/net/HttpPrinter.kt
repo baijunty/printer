@@ -8,15 +8,41 @@ import com.baijunty.printer.PrinterWriter
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.io.InputStream
 import java.net.HttpURLConnection
+import java.net.URL
 
-class HttpPrinter(val printerWriter: PrinterWriter):PrintWorkModel {
+class HttpPrinter(val printerWriter: PrinterWriter,private val url:String):PrintWorkModel {
+
+    class LazyInputStream(conn:HttpURLConnection):InputStream(){
+        val inputStream: InputStream by lazy {
+            conn.inputStream
+        }
+        override fun read(): Int = inputStream.read()
+
+        override fun close() {
+            super.close()
+            inputStream.close()
+        }
+    }
 
     override val writer: PrinterWriter
         get() = printerWriter
 
     override fun print(context: Context): Observable<Boolean> {
-        TODO("Not yet implemented")
+        return Observable.just(url)
+            .observeOn(Schedulers.computation())
+            .map {
+                val conn=URL(url).openConnection() as HttpURLConnection
+                conn.requestMethod="POST"
+                conn.doOutput=true
+                conn.doInput=true
+                conn.connect()
+                val b=writer.printData(conn.outputStream,LazyInputStream(conn))
+                conn.disconnect()
+                b
+            }
+            .observeOn(AndroidSchedulers.mainThread())
     }
 
     override fun preview(context: Context): Observable<View> {

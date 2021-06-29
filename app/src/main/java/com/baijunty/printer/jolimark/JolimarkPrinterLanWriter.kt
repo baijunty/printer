@@ -12,7 +12,7 @@ import java.nio.charset.Charset
 
 class JolimarkPrinterLanWriter(type: BlueToothPrinter.Type, charset: Charset, rows: List<Row>) :
     CommonBluetoothWriter(type, charset, rows) {
-    override fun printData(stream: OutputStream, inputStream: InputStream) {
+    override fun printData(stream: OutputStream, inputStream: InputStream): Boolean {
         val jsonObject = JSONObject().apply {
             put("tp", "1002")
             put("paper_type",3)
@@ -41,10 +41,10 @@ class JolimarkPrinterLanWriter(type: BlueToothPrinter.Type, charset: Charset, ro
             }
         }
         println(bytes.toString(Charset.defaultCharset()))
-        isResponseSuccess(bytes)
+        return isResponseSuccess(bytes)
     }
 
-    private fun isResponseSuccess(bytes: ByteArray) {
+    private fun isResponseSuccess(bytes: ByteArray):Boolean {
         if (bytes.size > 6 && bytes[0] == 0xbc.toByte()) {
             val len =
                 bytes[2].toInt() or (bytes[3].toInt() shl 8) or (bytes[4].toInt() shl 16) or (bytes[5].toInt() shl 24)
@@ -59,10 +59,12 @@ class JolimarkPrinterLanWriter(type: BlueToothPrinter.Type, charset: Charset, ro
                     else -> throw IllegalStateException(if (response.getInt("progress")==1) "打印任务解析失败" else "打印失败")
                 }
                 if (bytes.size > len + 6 && response.getInt("progress") == 1) {
-                    isResponseSuccess(bytes.slice(6 + len until bytes.size).toByteArray())
+                    return isResponseSuccess(bytes.slice(6 + len until bytes.size).toByteArray())
                 }
+                return true
             }
         }
+        return false
     }
 
 }

@@ -7,7 +7,7 @@ import com.baijunty.printer.bluetooth.CommonBluetoothWriter
 import com.baijunty.printer.html.HtmlPrinter
 import com.baijunty.printer.html.HtmlWriter
 import com.baijunty.printer.jolimark.JolimarkBluetoothPrinterWriter
-import com.baijunty.printer.jolimark.JolimarkHttpJsonWriter
+import com.baijunty.printer.jolimark.JolimarkHttpWriter
 import com.baijunty.printer.jolimark.JolimarkPrinterLanWriter
 import com.baijunty.printer.jolimark.enums.ConnectTypeEnum
 import com.baijunty.printer.jolimark.enums.PrinterEnum
@@ -250,7 +250,7 @@ class JolimarkPrinterTaskBuilder(val address: String):BlueToothPrinterTaskBuilde
                 printTime = this@JolimarkPrinterTaskBuilder.printTime
                 address = this@JolimarkPrinterTaskBuilder.address
             }
-            ConnectTypeEnum.WLAN -> printer?:HttpPrinter(writer?:JolimarkHttpJsonWriter(rows))
+            ConnectTypeEnum.WLAN -> printer?:HttpPrinter(writer?:JolimarkHttpWriter(rows),address)
         }
     }
 }

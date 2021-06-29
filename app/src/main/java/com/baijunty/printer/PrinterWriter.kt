@@ -11,8 +11,9 @@ interface PrinterWriter {
     /**
     * @param stream 写入流
      * @param inputStream 读入流
+     * @return true to success,false to failed
     */
-    fun printData(stream:OutputStream,inputStream: InputStream)
+    fun printData(stream:OutputStream,inputStream: InputStream):Boolean
 
     /**
     * @param

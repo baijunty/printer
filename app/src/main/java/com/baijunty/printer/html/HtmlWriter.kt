@@ -8,8 +8,9 @@ import java.io.OutputStream
 import java.lang.StringBuilder
 
 class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : PrinterWriter {
-    override fun printData(stream: OutputStream, inputStream: InputStream) {
+    override fun printData(stream: OutputStream, inputStream: InputStream): Boolean {
         Log.i("htmlWriter","do nothing")
+        return false
     }
 
     /**

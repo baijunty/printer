@@ -193,7 +193,7 @@ open class GprinterWriter(type: BlueToothPrinter.Type, charset: Charset, rows:Li
         }
     }
 
-    override fun printData(stream: OutputStream, inputStream: InputStream) {
+    override fun printData(stream: OutputStream, inputStream: InputStream): Boolean {
         rows.forEach {
             printerType.checkRowIllegal(it)
             initPrinter(getRowHeight(it))
@@ -206,5 +206,6 @@ open class GprinterWriter(type: BlueToothPrinter.Type, charset: Charset, rows:Li
                 inputStream.read(cell.outData)
             }
         }
+        return true
     }
 }

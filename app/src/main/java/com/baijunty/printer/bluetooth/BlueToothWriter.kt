@@ -200,6 +200,7 @@ abstract class BlueToothWriter(
                         val b = column.getValue()
                         writeBitmap(BitmapFactory.decodeByteArray(b, 0, b.size),column.width,column.height)
                     }
+                    else -> throw IllegalStateException("not support yet")
                 }
             }
             is CommandCell->writeBytes(column.getValue(),false)
@@ -322,7 +323,7 @@ abstract class BlueToothWriter(
     /**
      * 检测格式并生成打印内容
      */
-    override fun printData(stream: OutputStream, inputStream: InputStream) {
+    override fun printData(stream: OutputStream, inputStream: InputStream): Boolean {
         rows.forEach { row ->
             printerType.checkRowIllegal(row)
             writer.reset()
@@ -333,6 +334,7 @@ abstract class BlueToothWriter(
                 inputStream.read(cell.outData)
             }
         }
+        return true
     }
 
     /**

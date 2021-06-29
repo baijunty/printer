@@ -12,8 +12,9 @@ import kotlin.experimental.and
 /**
  * 映美云打印机使用蓝牙打印
  */
-class JolimarkBluetoothPrinterWriter(type: BlueToothPrinter.Type, charset: Charset, rows:List<Row>,private val isEsc:Boolean): CommonBluetoothWriter(type, charset, rows) {
-    override fun printData(stream: OutputStream, inputStream: InputStream) {
+class JolimarkBluetoothPrinterWriter(type: BlueToothPrinter.Type, charset: Charset, rows:List<Row>,private val isEsc:Boolean)
+    : CommonBluetoothWriter(type, charset, rows) {
+    override fun printData(stream: OutputStream, inputStream: InputStream) :Boolean{
         writer.reset()
         rows.forEach { row ->
             printerType.checkRowIllegal(row)
@@ -22,5 +23,6 @@ class JolimarkBluetoothPrinterWriter(type: BlueToothPrinter.Type, charset: Chars
         val len=len
         stream.write(byteArrayOf(0x1,if (isEsc) 0x50 else 0x52,(len shr 16).toByte() and 0xff.toByte(),(len shr 8).toByte() and 0xff.toByte(),len.toByte() and 0xff.toByte()))
         stream.write(writer.toByteArray())
+        return true
     }
 }
