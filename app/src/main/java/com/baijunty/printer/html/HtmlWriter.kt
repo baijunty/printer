@@ -21,13 +21,14 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
         val chunk=mutableListOf<MutableList<Row>>()
         val sb=StringBuilder("<!DOCTYPE html>")
         rows.fold(-1){ acc, row ->
-            val group=if (acc!=row.columns.size){
+            val totalColSpan=row.columns.fold(0){w,c->w+c.weight}
+            val group=if (acc!=totalColSpan){
                 val g=mutableListOf<Row>()
                 chunk.add(g)
                 g
             } else chunk.last()
             group.add(row)
-            row.columns.size
+            totalColSpan
         }
         html(border) {
             chunk.forEach{
@@ -46,6 +47,9 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
         tag("tr"){
             row.columns.forEach {
                 tag("td") {
+                    prop("colspan"){
+                        it.weight.toString()
+                    }
                     when (it) {
                         is TextCell -> {
                             writeStyle(it)

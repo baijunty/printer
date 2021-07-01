@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate","UNCHECKED_CAST")
+
 package com.baijunty.printer
 
 import android.annotation.TargetApi
@@ -19,7 +21,6 @@ import java.nio.charset.Charset
  *用于定义要打印的格式内容
  */
 
-@Suppress("UNCHECKED_CAST")
 sealed class PrintTaskBuilder {
     val rows = mutableListOf<Row>()
     /**
@@ -40,6 +41,13 @@ sealed class PrintTaskBuilder {
         return this
     }
 
+    open fun custom(supply: Supply<String, TextCell>, bold: Boolean = false, heighten: Boolean = false,
+                    underLine:Boolean=false, align: Align = Align.LEFT, weight: Int = 1): PrintTaskBuilder {
+        val row = Row()
+        row.columns.add(TextCell("",style = Style(bold,heighten,underLine),align, supply, weight) as Cell<Any>)
+        rows.add(row)
+        return this
+    }
     /**
      *占用一整行打印[value]并设置加粗[bold]，加高[heighten]，下划线[underLine]，对齐[align]
      */
@@ -220,6 +228,18 @@ class JolimarkPrinterTaskBuilder(val address: String):BlueToothPrinterTaskBuilde
     private var isEsc =true
     fun setPrinter(printerEnum: PrinterEnum):JolimarkPrinterTaskBuilder{
         this.printerEnum=printerEnum
+        printerType = when(printerEnum){
+            PrinterEnum.MCP58 -> BlueToothPrinter.Type.Type58
+            PrinterEnum.MCP350 -> BlueToothPrinter.Type.Type80
+            PrinterEnum.MCP330 -> BlueToothPrinter.Type.Type80
+            PrinterEnum.MCP360 -> BlueToothPrinter.Type.Type80
+            PrinterEnum.MCP610 -> BlueToothPrinter.Type.Type80
+            PrinterEnum.MCP230 -> BlueToothPrinter.Type.Type58
+            PrinterEnum.CFP535 -> BlueToothPrinter.Type.Type110
+            PrinterEnum.CFP820 -> BlueToothPrinter.Type.Type110
+            PrinterEnum.CLP180 -> BlueToothPrinter.Type.Type110
+            PrinterEnum.CLQ200FW -> BlueToothPrinter.Type.Type110
+        }
         return this
     }
 
@@ -250,7 +270,7 @@ class JolimarkPrinterTaskBuilder(val address: String):BlueToothPrinterTaskBuilde
                 printTime = this@JolimarkPrinterTaskBuilder.printTime
                 address = this@JolimarkPrinterTaskBuilder.address
             }
-            ConnectTypeEnum.WLAN -> printer?:HttpPrinter(writer?:JolimarkHttpWriter(rows),address)
+            ConnectTypeEnum.WLAN -> printer?:HttpPrinter(writer?:JolimarkHttpWriter(rows,isEsc,printerType),address)
         }
     }
 }
@@ -354,8 +374,9 @@ sealed class RowBuilder(protected val row: Row, protected val builder: PrintTask
      *  [supply] 自定义列文本内容 设置加粗[bold]，加高[heighten]，下划线[underLine]，对齐[align] 以及列权重[weight]
      * @return
      */
-    fun custom(supply: Supply<String, TextCell>, bold: Boolean = false, heighten: Boolean = false, underLine:Boolean=false, align: Align = Align.LEFT, weight: Int = 1): RowBuilder {
-        row.columns.add(TextCell("", supply = supply) as Cell<Any>)
+    fun custom(supply: Supply<String, TextCell>, bold: Boolean = false, heighten: Boolean = false,
+               underLine:Boolean=false, align: Align = Align.LEFT, weight: Int = 1): RowBuilder {
+        row.columns.add(TextCell("", style = Style(bold,heighten,underLine),supply = supply,align = align,weight = weight) as Cell<Any>)
         return this
     }
 
@@ -363,7 +384,7 @@ sealed class RowBuilder(protected val row: Row, protected val builder: PrintTask
 }
 
 @Suppress("UNCHECKED_CAST")
-class BlueToothRowBuilder(row: Row, val blueTaskBuilder: BlueToothPrinterTaskBuilder): RowBuilder(row,blueTaskBuilder) {
+class BlueToothRowBuilder(row: Row, private val blueTaskBuilder: BlueToothPrinterTaskBuilder): RowBuilder(row,blueTaskBuilder) {
     /**
      * 填满整列
      */
@@ -398,7 +419,7 @@ class BlueToothRowBuilder(row: Row, val blueTaskBuilder: BlueToothPrinterTaskBui
 }
 
 @Suppress("UNCHECKED_CAST")
- class HtmlRowBuilder(row: Row, val htmlTaskBuilder: HtmlPrinterTaskBuilder): RowBuilder(row,htmlTaskBuilder) {
+ class HtmlRowBuilder(row: Row, htmlTaskBuilder: HtmlPrinterTaskBuilder): RowBuilder(row,htmlTaskBuilder) {
 
     /**
      * 使用[supply]返回字节生成图片打印
