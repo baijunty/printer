@@ -139,7 +139,20 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
                 ""
             }
             Align.FILL -> {
-                tag("hr") { "" }
+                tag("hr") {
+                    val v=cell.getValue()
+                    style {
+                        when(v.trim()){
+                            "="->{
+                                string("border","none")
+                                string("border-top","5px double gray")
+                            }
+                            "-"->string("border","1px solid gray")
+                            else->string("border","none")
+                        }
+                    }
+                    ""
+                }
                 ""
             }
         }

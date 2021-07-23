@@ -1,4 +1,4 @@
-@file:Suppress("unused", "MemberVisibilityCanBePrivate","UNCHECKED_CAST")
+@file:Suppress("unused", "MemberVisibilityCanBePrivate", "UNCHECKED_CAST")
 
 package com.baijunty.printer
 
@@ -23,17 +23,18 @@ import java.nio.charset.Charset
 
 sealed class PrintTaskBuilder {
     val rows = mutableListOf<Row>()
+
     /**
-    * @param
-    * @return 当前总行数
-    */
-    val lines get() = rows.size
+     * @param
+     * @return 当前总行数
+     */
+    val lines: Int get() = rows.size
 
     /**
      *占用一整行
-    * @param value 行内容
-    * @return  自身
-    */
+     * @param value 行内容
+     * @return  自身
+     */
     open fun line(value: String): PrintTaskBuilder {
         val row = Row()
         row.columns.add(TextCell(value) as Cell<Any>)
@@ -41,19 +42,42 @@ sealed class PrintTaskBuilder {
         return this
     }
 
-    open fun custom(supply: Supply<String, TextCell>, bold: Boolean = false, heighten: Boolean = false,
-                    underLine:Boolean=false, align: Align = Align.LEFT, weight: Int = 1): PrintTaskBuilder {
+    open fun custom(
+        supply: Supply<String, TextCell>, bold: Boolean = false, heighten: Boolean = false,
+        underLine: Boolean = false, align: Align = Align.LEFT, weight: Int = 1
+    ): PrintTaskBuilder {
         val row = Row()
-        row.columns.add(TextCell("",style = Style(bold,heighten,underLine),align, supply, weight) as Cell<Any>)
+        row.columns.add(
+            TextCell(
+                "",
+                style = Style(bold, heighten, underLine),
+                align,
+                supply,
+                weight
+            ) as Cell<Any>
+        )
         rows.add(row)
         return this
     }
+
     /**
      *占用一整行打印[value]并设置加粗[bold]，加高[heighten]，下划线[underLine]，对齐[align]
      */
-    open fun line(value: String, bold: Boolean = false, heighten: Boolean = false,underLine:Boolean=false, align: Align = Align.LEFT): PrintTaskBuilder {
+    open fun line(
+        value: String,
+        bold: Boolean = false,
+        heighten: Boolean = false,
+        underLine: Boolean = false,
+        align: Align = Align.LEFT
+    ): PrintTaskBuilder {
         val row = Row()
-        row.columns.add(TextCell(value, Style(bold, double = heighten,underLine = underLine), align) as Cell<Any>)
+        row.columns.add(
+            TextCell(
+                value,
+                Style(bold, double = heighten, underLine = underLine),
+                align
+            ) as Cell<Any>
+        )
         rows.add(row)
         return this
     }
@@ -62,9 +86,21 @@ sealed class PrintTaskBuilder {
      *生成[value]内容条形码打印
      * 占用整行
      */
-    open fun barCode(value: String,type:BarCodeType=BarCodeType.Code93,width: Int=-1,height: Int=-1): PrintTaskBuilder {
+    open fun barCode(
+        value: String,
+        type: BarCodeType = BarCodeType.Code93,
+        width: Int = -1,
+        height: Int = -1
+    ): PrintTaskBuilder {
         val row = Row()
-        row.columns.add(ImageCell(value, type = BarCode(type),width = width,height = height) as Cell<Any>)
+        row.columns.add(
+            ImageCell(
+                value,
+                type = BarCode(type),
+                width = width,
+                height = height
+            ) as Cell<Any>
+        )
         rows.add(row)
         return this
     }
@@ -73,29 +109,54 @@ sealed class PrintTaskBuilder {
      *生成[value]内容二维码打印
      * 占用整行
      */
-    open fun qrCode(value: String,width:Int=-1,height:Int=-1): PrintTaskBuilder {
+    open fun qrCode(value: String, width: Int = -1, height: Int = -1): PrintTaskBuilder {
         val row = Row()
-        row.columns.add(ImageCell(value, type = QRCode,width = width,height = height) as Cell<Any>)
+        row.columns.add(
+            ImageCell(
+                value,
+                type = QRCode,
+                width = width,
+                height = height
+            ) as Cell<Any>
+        )
         rows.add(row)
         return this
     }
+
     /**
      *使用[supply]字节数组生成图片打印
      * 占用整行
      */
-    open fun bitmap(supply: Supply<ByteArray, ImageCell>,width: Int,height: Int): PrintTaskBuilder {
+    open fun bitmap(
+        supply: Supply<ByteArray, ImageCell>,
+        width: Int,
+        height: Int
+    ): PrintTaskBuilder {
         val row = Row()
-        row.columns.add(ImageCell("", type = Image, supply = supply,width = width,height = height) as Cell<Any>)
+        row.columns.add(
+            ImageCell(
+                "",
+                type = Image,
+                supply = supply,
+                width = width,
+                height = height
+            ) as Cell<Any>
+        )
         rows.add(row)
         return this
     }
 
-    abstract fun newLine(limit:Boolean=false,anchor: Int=-1): RowBuilder
+    abstract fun newLine(limit: Boolean = false, anchor: Int = -1): RowBuilder
 
     /**
      * 生成打印任为管理
      */
-    abstract fun build(writer: PrinterWriter?=null): PrintWorkModel
+    abstract fun build(writer: PrinterWriter? = null): PrintWorkModel
+
+    fun copyTo(builder: PrintTaskBuilder): PrintTaskBuilder = builder.let {
+        it.rows.addAll(rows)
+        it
+    }
 }
 
 /**
@@ -105,11 +166,12 @@ sealed class PrintTaskBuilder {
  * @property printerType 打印机类型 默认为58打印机
  */
 @Suppress("UNCHECKED_CAST")
- open class BlueToothPrinterTaskBuilder(private var address: String): PrintTaskBuilder() {
+open class BlueToothPrinterTaskBuilder(private var address: String) : PrintTaskBuilder() {
     var charset: Charset = Charset.forName("GBK")
     var printerType: BlueToothPrinter.Type = BlueToothPrinter.Type.Type58
-    var printTime:Int=1
-    var printer:PrintWorkModel?=null
+    var printTime: Int = 1
+    var printer: PrintWorkModel? = null
+
     /**
      *@see [PrintTaskBuilder.line]
      */
@@ -118,19 +180,26 @@ sealed class PrintTaskBuilder {
         return this
     }
 
-    fun setPrinterType(type:BlueToothPrinter.Type): BlueToothPrinterTaskBuilder {
-        printerType=type
+    fun setPrinterType(type: BlueToothPrinter.Type): BlueToothPrinterTaskBuilder {
+        printerType = type
         return this
     }
 
-    fun setPrintTime(time:Int):BlueToothPrinterTaskBuilder {
-        printTime=time
+    fun setPrintTime(time: Int): BlueToothPrinterTaskBuilder {
+        printTime = time
         return this
     }
+
     /**
      *@see [PrintTaskBuilder.line]
      */
-    override fun line(value: String, bold: Boolean, heighten: Boolean, underLine: Boolean, align: Align): BlueToothPrinterTaskBuilder {
+    override fun line(
+        value: String,
+        bold: Boolean,
+        heighten: Boolean,
+        underLine: Boolean,
+        align: Align
+    ): BlueToothPrinterTaskBuilder {
         super.line(value, bold, heighten, underLine, align)
         return this
     }
@@ -141,14 +210,15 @@ sealed class PrintTaskBuilder {
         width: Int,
         height: Int
     ): BlueToothPrinterTaskBuilder {
-         super.barCode(value, type, width, height)
+        super.barCode(value, type, width, height)
         return this
     }
+
     /**
      *@see [PrintTaskBuilder.qrCode]
      */
-    override fun qrCode(value: String,width: Int,height: Int): BlueToothPrinterTaskBuilder {
-         super.qrCode(value,width, height)
+    override fun qrCode(value: String, width: Int, height: Int): BlueToothPrinterTaskBuilder {
+        super.qrCode(value, width, height)
         return this
     }
 
@@ -157,15 +227,16 @@ sealed class PrintTaskBuilder {
         width: Int,
         height: Int
     ): BlueToothPrinterTaskBuilder {
-         super.bitmap(supply, width, height)
+        super.bitmap(supply, width, height)
         return this
     }
+
     /**
      *行内容生成，支持多列
      * @param limit 是否列宽严格受限
      */
-    override fun newLine(limit:Boolean,anchor:Int): BlueToothRowBuilder {
-        val row = Row(rangeLimit = limit,anchor = anchor)
+    override fun newLine(limit: Boolean, anchor: Int): BlueToothRowBuilder {
+        val row = Row(rangeLimit = limit, anchor = anchor)
         rows.add(row)
         return BlueToothRowBuilder(row, this)
     }
@@ -174,8 +245,12 @@ sealed class PrintTaskBuilder {
      *使用行内容[func]列生成，支持多列
      * @param limit 是否列宽严格受限
      */
-    fun newLine(limit:Boolean=false,anchor: Int=-1,func: BlueToothRowBuilder.() -> Unit): BlueToothPrinterTaskBuilder {
-        val row = Row(rangeLimit = limit,anchor = anchor)
+    fun newLine(
+        limit: Boolean = false,
+        anchor: Int = -1,
+        func: BlueToothRowBuilder.() -> Unit
+    ): BlueToothPrinterTaskBuilder {
+        val row = Row(rangeLimit = limit, anchor = anchor)
         rows.add(row)
         val builder = BlueToothRowBuilder(row, this)
         builder.func()
@@ -197,38 +272,42 @@ sealed class PrintTaskBuilder {
      *前进[num]行
      */
     fun forward(num: Int): BlueToothPrinterTaskBuilder {
-         for (i in 0 until num) {
-             divider(' ')
-         }
-         return this
-     }
+        for (i in 0 until num) {
+            divider(' ')
+        }
+        return this
+    }
 
 
-    fun command(supply: Supply<ByteArray, CommandCell>, outData:ByteArray = ByteArray(0)):BlueToothPrinterTaskBuilder{
+    fun command(
+        supply: Supply<ByteArray, CommandCell>,
+        outData: ByteArray = ByteArray(0)
+    ): BlueToothPrinterTaskBuilder {
         val row = Row()
-        row.columns.add(CommandCell(supply,outData))
+        row.columns.add(CommandCell(supply, outData))
         rows.add(row)
         return this
     }
+
     /**
      * 生成蓝牙打印任务
      */
-    override fun  build(writer: PrinterWriter?): PrintWorkModel {
-        return printer?:BlueToothPrinter.BLUETOOTH_PRINTER.apply {
-            printTime= this@BlueToothPrinterTaskBuilder.printTime
-            address=this@BlueToothPrinterTaskBuilder.address
-            this.printerWriter= writer?:CommonBluetoothWriter(printerType,charset,rows)
+    override fun build(writer: PrinterWriter?): PrintWorkModel {
+        return printer ?: BlueToothPrinter.BLUETOOTH_PRINTER.apply {
+            printTime = this@BlueToothPrinterTaskBuilder.printTime
+            address = this@BlueToothPrinterTaskBuilder.address
+            this.printerWriter = writer ?: CommonBluetoothWriter(printerType, charset, rows)
         }
     }
 }
 
-class JolimarkPrinterTaskBuilder(val address: String):BlueToothPrinterTaskBuilder(address){
-    private var printerEnum:PrinterEnum = PrinterEnum.CLP180
-    private var connectType:ConnectTypeEnum =ConnectTypeEnum.BLUETOOTH
-    private var isEsc =true
-    fun setPrinter(printerEnum: PrinterEnum):JolimarkPrinterTaskBuilder{
-        this.printerEnum=printerEnum
-        printerType = when(printerEnum){
+class JolimarkPrinterTaskBuilder(val address: String) : BlueToothPrinterTaskBuilder(address) {
+    private var printerEnum: PrinterEnum = PrinterEnum.CLP180
+    private var connectType: ConnectTypeEnum = ConnectTypeEnum.BLUETOOTH
+    private var isEsc = true
+    fun setPrinter(printerEnum: PrinterEnum): JolimarkPrinterTaskBuilder {
+        this.printerEnum = printerEnum
+        printerType = when (printerEnum) {
             PrinterEnum.MCP58 -> BlueToothPrinter.Type.Type58
             PrinterEnum.MCP350 -> BlueToothPrinter.Type.Type80
             PrinterEnum.MCP330 -> BlueToothPrinter.Type.Type80
@@ -243,13 +322,13 @@ class JolimarkPrinterTaskBuilder(val address: String):BlueToothPrinterTaskBuilde
         return this
     }
 
-    fun setConnectType(connectTypeEnum: ConnectTypeEnum):JolimarkPrinterTaskBuilder{
-        connectType=connectTypeEnum
+    fun setConnectType(connectTypeEnum: ConnectTypeEnum): JolimarkPrinterTaskBuilder {
+        connectType = connectTypeEnum
         return this
     }
 
-    fun useHtml():JolimarkPrinterTaskBuilder{
-        isEsc=false
+    fun useHtml(): JolimarkPrinterTaskBuilder {
+        isEsc = false
         return this
     }
 
@@ -270,14 +349,20 @@ class JolimarkPrinterTaskBuilder(val address: String):BlueToothPrinterTaskBuilde
                 printTime = this@JolimarkPrinterTaskBuilder.printTime
                 address = this@JolimarkPrinterTaskBuilder.address
             }
-            ConnectTypeEnum.WLAN -> printer?:HttpPrinter(writer?:JolimarkHttpWriter(rows,isEsc,printerType),address)
+            ConnectTypeEnum.WLAN -> printer ?: HttpPrinter(
+                writer ?: JolimarkHttpWriter(
+                    rows,
+                    isEsc,
+                    printerType
+                ), address
+            )
         }
     }
 }
 
 @Suppress("UNCHECKED_CAST")
 @TargetApi(Build.VERSION_CODES.KITKAT)
-class HtmlPrinterTaskBuilder: PrintTaskBuilder(){
+class HtmlPrinterTaskBuilder : PrintTaskBuilder() {
     /**
      *@see [PrintTaskBuilder.line]
      */
@@ -285,10 +370,17 @@ class HtmlPrinterTaskBuilder: PrintTaskBuilder(){
         super.line(value)
         return this
     }
+
     /**
      *@see [PrintTaskBuilder.line]
      */
-    override fun line(value: String, bold: Boolean, heighten: Boolean, underLine: Boolean, align: Align): HtmlPrinterTaskBuilder {
+    override fun line(
+        value: String,
+        bold: Boolean,
+        heighten: Boolean,
+        underLine: Boolean,
+        align: Align
+    ): HtmlPrinterTaskBuilder {
         super.line(value, bold, heighten, underLine, align)
         return this
     }
@@ -299,14 +391,15 @@ class HtmlPrinterTaskBuilder: PrintTaskBuilder(){
         width: Int,
         height: Int
     ): HtmlPrinterTaskBuilder {
-         super.barCode(value, type, width, height)
+        super.barCode(value, type, width, height)
         return this
     }
+
     /**
      *@see [PrintTaskBuilder.qrCode]
      */
-    override fun qrCode(value: String,width: Int,height: Int): HtmlPrinterTaskBuilder {
-        super.qrCode(value,width, height)
+    override fun qrCode(value: String, width: Int, height: Int): HtmlPrinterTaskBuilder {
+        super.qrCode(value, width, height)
         return this
     }
 
@@ -315,21 +408,23 @@ class HtmlPrinterTaskBuilder: PrintTaskBuilder(){
         width: Int,
         height: Int
     ): HtmlPrinterTaskBuilder {
-         super.bitmap(supply, width, height)
+        super.bitmap(supply, width, height)
         return this
     }
+
     /**
      *行内容生成器，[limit]控制列宽严格受限
      */
-    override fun newLine(limit:Boolean,anchor: Int): HtmlRowBuilder {
-        val row = Row(rangeLimit = limit,anchor = anchor)
+    override fun newLine(limit: Boolean, anchor: Int): HtmlRowBuilder {
+        val row = Row(rangeLimit = limit, anchor = anchor)
         rows.add(row)
         return HtmlRowBuilder(row, this)
     }
+
     /**
      *[func]生成行内容，[limit]控制列宽严格受限
      */
-    fun newLine(limit:Boolean=false,func: HtmlRowBuilder.() -> Unit): HtmlPrinterTaskBuilder {
+    fun newLine(limit: Boolean = false, func: HtmlRowBuilder.() -> Unit): HtmlPrinterTaskBuilder {
         val row = Row(rangeLimit = limit)
         rows.add(row)
         val builder = HtmlRowBuilder(row, this)
@@ -337,11 +432,12 @@ class HtmlPrinterTaskBuilder: PrintTaskBuilder(){
         builder.finish()
         return this
     }
+
     /**
      * 生成局域网打印任务
      */
     override fun build(writer: PrinterWriter?): PrintWorkModel {
-        return HtmlPrinter(writer?:HtmlWriter(rows))
+        return HtmlPrinter(writer ?: HtmlWriter(rows))
     }
 }
 
@@ -349,34 +445,60 @@ class HtmlPrinterTaskBuilder: PrintTaskBuilder(){
 sealed class RowBuilder(protected val row: Row, protected val builder: PrintTaskBuilder) {
 
     /**
-    * @param
-    * @return 当前总列数
-    */
-    val size=row.columns.size
+     * @param
+     * @return 当前总列数
+     */
+    val size = row.columns.size
 
     /**
-    * @param value 列文本内容
-    * @return
-    */
+     * @param value 列文本内容
+     * @return
+     */
     fun string(value: String): RowBuilder {
         row.columns.add(TextCell(value) as Cell<Any>)
         return this
     }
+
     /**
      * @param value 列文本内容 设置加粗[bold]，加高[heighten]，下划线[underLine]，对齐[align] 以及列权重[weight]
      * @return
      */
-    fun string(value: String, bold: Boolean = false, heighten: Boolean = false, underLine:Boolean=false, align: Align = Align.LEFT, weight: Int = 1): RowBuilder {
-        row.columns.add(TextCell(value, Style(bold, double = heighten,underLine = underLine), align, weight = weight) as Cell<Any>)
+    fun string(
+        value: String,
+        bold: Boolean = false,
+        heighten: Boolean = false,
+        underLine: Boolean = false,
+        align: Align = Align.LEFT,
+        weight: Int = 1
+    ): RowBuilder {
+        row.columns.add(
+            TextCell(
+                value,
+                Style(bold, double = heighten, underLine = underLine),
+                align,
+                weight = weight
+            ) as Cell<Any>
+        )
         return this
     }
+
     /**
      *  [supply] 自定义列文本内容 设置加粗[bold]，加高[heighten]，下划线[underLine]，对齐[align] 以及列权重[weight]
      * @return
      */
-    fun custom(supply: Supply<String, TextCell>, bold: Boolean = false, heighten: Boolean = false,
-               underLine:Boolean=false, align: Align = Align.LEFT, weight: Int = 1): RowBuilder {
-        row.columns.add(TextCell("", style = Style(bold,heighten,underLine),supply = supply,align = align,weight = weight) as Cell<Any>)
+    fun custom(
+        supply: Supply<String, TextCell>, bold: Boolean = false, heighten: Boolean = false,
+        underLine: Boolean = false, align: Align = Align.LEFT, weight: Int = 1
+    ): RowBuilder {
+        row.columns.add(
+            TextCell(
+                "",
+                style = Style(bold, heighten, underLine),
+                supply = supply,
+                align = align,
+                weight = weight
+            ) as Cell<Any>
+        )
         return this
     }
 
@@ -384,63 +506,114 @@ sealed class RowBuilder(protected val row: Row, protected val builder: PrintTask
 }
 
 @Suppress("UNCHECKED_CAST")
-class BlueToothRowBuilder(row: Row, private val blueTaskBuilder: BlueToothPrinterTaskBuilder): RowBuilder(row,blueTaskBuilder) {
-    /**
-     * 填满整列
-     */
-    fun fill(value: String): BlueToothRowBuilder {
-        row.columns.add(TextCell(value, align = Align.FILL) as Cell<Any>)
-        return this
-    }
+class BlueToothRowBuilder(row: Row, private val blueTaskBuilder: BlueToothPrinterTaskBuilder) :
+    RowBuilder(row, blueTaskBuilder) {
 
 
     /**
      * 使用[supply]返回字节生成图片打印
      */
     fun bitmap(supply: Supply<ByteArray, ImageCell>): BlueToothPrinterTaskBuilder {
-        row.columns.add(ImageCell("", type = Image, supply = supply,width = -1,height = -1) as Cell<Any>)
+        row.columns.add(
+            ImageCell(
+                "",
+                type = Image,
+                supply = supply,
+                width = -1,
+                height = -1
+            ) as Cell<Any>
+        )
         return blueTaskBuilder
     }
 
     /**
      * 使用[value]生成条形码打印
      */
-    fun barCode(value: String, type: BarCodeType=BarCodeType.Code93, width: Int, height: Int): BlueToothPrinterTaskBuilder {
-        row.columns.add(ImageCell(value, type = BarCode(type),width = width,height = height) as Cell<Any>)
+    fun barCode(
+        value: String,
+        type: BarCodeType = BarCodeType.Code93,
+        width: Int,
+        height: Int
+    ): BlueToothPrinterTaskBuilder {
+        row.columns.add(
+            ImageCell(
+                value,
+                type = BarCode(type),
+                width = width,
+                height = height
+            ) as Cell<Any>
+        )
         return blueTaskBuilder
     }
+
     /**
      * 使用[value]生成二维码打印
      */
-    fun qrCode(value: String,width: Int=-1,height: Int=-1): BlueToothPrinterTaskBuilder {
-        row.columns.add(ImageCell(value, type = QRCode,width = width,height = height) as Cell<Any>)
+    fun qrCode(value: String, width: Int = -1, height: Int = -1): BlueToothPrinterTaskBuilder {
+        row.columns.add(
+            ImageCell(
+                value,
+                type = QRCode,
+                width = width,
+                height = height
+            ) as Cell<Any>
+        )
         return blueTaskBuilder
     }
 }
 
 @Suppress("UNCHECKED_CAST")
- class HtmlRowBuilder(row: Row, htmlTaskBuilder: HtmlPrinterTaskBuilder): RowBuilder(row,htmlTaskBuilder) {
+class HtmlRowBuilder(row: Row, htmlTaskBuilder: HtmlPrinterTaskBuilder) :
+    RowBuilder(row, htmlTaskBuilder) {
 
     /**
      * 使用[supply]返回字节生成图片打印
      */
-    fun bitmap(supply: Supply<ByteArray, ImageCell>,width: Int,height: Int): HtmlRowBuilder {
-        row.columns.add(ImageCell("", type = Image, supply = supply,width = width,height = height) as Cell<Any>)
+    fun bitmap(supply: Supply<ByteArray, ImageCell>, width: Int, height: Int): HtmlRowBuilder {
+        row.columns.add(
+            ImageCell(
+                "",
+                type = Image,
+                supply = supply,
+                width = width,
+                height = height
+            ) as Cell<Any>
+        )
         return this
     }
 
     /**
      * 使用[value]生成条形码打印
      */
-    fun barCode(value: String,type: BarCodeType=BarCodeType.Code93,width: Int,height: Int): HtmlRowBuilder {
-        row.columns.add(ImageCell(value, type = BarCode(type),width = width,height = height) as Cell<Any>)
+    fun barCode(
+        value: String,
+        type: BarCodeType = BarCodeType.Code93,
+        width: Int,
+        height: Int
+    ): HtmlRowBuilder {
+        row.columns.add(
+            ImageCell(
+                value,
+                type = BarCode(type),
+                width = width,
+                height = height
+            ) as Cell<Any>
+        )
         return this
     }
+
     /**
      * 使用[value]生成二维码打印
      */
-    fun qrCode(value: String,width: Int=-1,height: Int=-1): HtmlRowBuilder {
-        row.columns.add(ImageCell(value, type = QRCode,width = width,height = height) as Cell<Any>)
+    fun qrCode(value: String, width: Int = -1, height: Int = -1): HtmlRowBuilder {
+        row.columns.add(
+            ImageCell(
+                value,
+                type = QRCode,
+                width = width,
+                height = height
+            ) as Cell<Any>
+        )
         return this
     }
 }

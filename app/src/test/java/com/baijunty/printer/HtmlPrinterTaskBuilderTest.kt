@@ -20,22 +20,43 @@ internal class HtmlPrinterTaskBuilderTest {
 
     @Test
     fun test(){
-        val sb=ByteArrayOutputStream()
-        val s=BlueToothPrinterTaskBuilder("3C:71:BF:FB:60:DA")
+        val s=JolimarkPrinterTaskBuilder("192.168.2.107")
+            .setConnectType(ConnectTypeEnum.BLUETOOTH)
             .line("hello,world", bold = true, heighten = true, underLine = true, align = Align.CENTER)
+            .line("往来单位：123234534")
+            .line("往来单位：123234534")
+            .line("往来单位：123234534")
+            .line("往来单位：123234534")
+            .divider('=')
             .newLine {
-                string("名称")
+                string("名称",weight = 3)
                 string("编码")
-                string("编码",weight = 2)
-                string("问好",weight = 3)
+                string("单位")
+                string("价格")
+                string("金额")
+            }
+            .divider('=')
+            .newLine {
+                string("名称",weight = 3)
+                string("编码")
+                string("单位")
+                string("价格")
+                string("金额")
             }
             .newLine {
-                string("名称")
+                string("名称",weight = 3)
                 string("编码")
-                string("编码",weight = 2)
-                string("问好",weight = 3)
+                string("单位")
+                string("价格")
+                string("金额")
             }
-            .build().writer.printData(sb,ByteArrayInputStream(ByteArray(0)))
-        File("d://test.html").writeBytes(sb.toByteArray())
+            .divider('-')
+            .line("往来单位：123234534")
+            .line("往来单位：123234534")
+            .line("往来单位：123234534")
+            .line("往来单位：123234534")
+            .forward(4)
+            .build().writer.preview()
+        println(s)
     }
 }

@@ -124,7 +124,7 @@ open class BlueToothPrinter(
     }
 
     //端口
-    protected var _socket: BluetoothSocket? = null
+    private var _socket: BluetoothSocket? = null
 
     //使用端口
     protected val socket: BluetoothSocket

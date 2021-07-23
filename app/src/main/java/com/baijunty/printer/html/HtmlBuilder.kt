@@ -107,13 +107,15 @@ open class Tag(val name: String, var content: HtmlTagWriter? = null) : HtmlTagWr
 }
 
 class CssValue<V>(name: String) : Tag(name) {
-    private var value: V? = null
+    private val values: MutableList<V> = mutableListOf()
     override fun write(sb: StringBuilder) {
-        sb.append(name).append(':').append(value ?: "").append(';')
+        values.fold(sb.append(name).append(':')){s,v->
+            s.append(v).append(' ')
+        }.append(';')
     }
 
-    fun initValue(v: V) {
-        value = v
+    fun addValue(v: V) {
+        values.add(v)
     }
 }
 
@@ -222,15 +224,15 @@ fun Tag.tag(name: String, init: Tag.() -> String) {
     addChild(p)
 }
 
-fun <V> CssProperty.string(name: String, init: CssValue<*>.() -> V) {
+fun <V> CssProperty.string(name: String, init: CssValue<V>.() -> V) {
     val value = CssValue<V>(name)
-    value.initValue(value.init())
+    value.addValue(value.init())
     values.add(value)
 }
 
 fun CssProperty.string(name: String, value: String) {
     val cssValue = CssValue<String>(name)
-    cssValue.initValue(value)
+    cssValue.addValue(value)
     values.add(cssValue)
 }
 fun Tag.table(init: Table.() -> Unit) {
@@ -259,7 +261,7 @@ fun html(border:Int=1,init: Tag.() -> Unit): Tag {
 
     td,
     th {
-      border: 1px solid rgb(100, 100, 100);
+      border: ${border}px solid rgb(100, 100, 100);
       padding: 10px 10px;
       text-align: center;
       overflow-wrap: anywhere;
