@@ -12,7 +12,7 @@ import java.io.Closeable
  * @property writer 用于生成打印内容
  */
 interface PrintWorkModel : Closeable {
-    fun print(context: Context):Observable<Boolean>
+    fun print(context: Context):Observable<Pair<Boolean,String>>
     fun preview(context: Context):Observable<View>
     val writer:PrinterWriter
 }

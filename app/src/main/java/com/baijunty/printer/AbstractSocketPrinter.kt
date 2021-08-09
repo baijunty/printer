@@ -38,15 +38,15 @@ abstract class AbstractSocketPrinter(var printerWriter: PrinterWriter): PrintWor
      ** @param context
      * @return
      */
-    override fun print(context: Context): Observable<Boolean> {
+    override fun print(context: Context): Observable<Pair<Boolean, String>> {
         return Observable.just(printerWriter)
             .observeOn(Schedulers.single())
             .map {
                 createSocket()
-                var s = false
+                var s = false to ""
                 for (i in 0 until printTime) {
                     s = tryWrite()
-                    if (!s) {
+                    if (!s.first) {
                         close()
                         createSocket()
                         s = tryWrite()
@@ -81,11 +81,9 @@ abstract class AbstractSocketPrinter(var printerWriter: PrinterWriter): PrintWor
     }
 
 
-    protected fun tryWrite(): Boolean {
+    protected fun tryWrite(): Pair<Boolean, String> {
         return runCatching {
             printerWriter.printData(getOutputStream(),getInputStream())
-        }.onFailure {
-            it.printStackTrace()
-        }.getOrDefault(false)
+        }.getOrThrow()
     }
 }

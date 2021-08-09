@@ -12,7 +12,7 @@ import java.nio.charset.Charset
 
 class JolimarkPrinterLanWriter(type: BlueToothPrinter.Type, charset: Charset, rows: List<Row>) :
     CommonBluetoothWriter(type, charset, rows) {
-    override fun printData(stream: OutputStream, inputStream: InputStream): Boolean {
+    override fun printData(stream: OutputStream, inputStream: InputStream): Pair<Boolean, String> {
         val jsonObject = JSONObject().apply {
             put("tp", "1002")
             put("paper_type",3)
@@ -44,7 +44,7 @@ class JolimarkPrinterLanWriter(type: BlueToothPrinter.Type, charset: Charset, ro
         return isResponseSuccess(bytes)
     }
 
-    private fun isResponseSuccess(bytes: ByteArray):Boolean {
+    private fun isResponseSuccess(bytes: ByteArray):Pair<Boolean, String> {
         if (bytes.size > 6 && bytes[0] == 0xbc.toByte()) {
             val len =
                 bytes[2].toInt() or (bytes[3].toInt() shl 8) or (bytes[4].toInt() shl 16) or (bytes[5].toInt() shl 24)
@@ -61,10 +61,10 @@ class JolimarkPrinterLanWriter(type: BlueToothPrinter.Type, charset: Charset, ro
                 if (bytes.size > len + 6 && response.getInt("progress") == 1) {
                     return isResponseSuccess(bytes.slice(6 + len until bytes.size).toByteArray())
                 }
-                return true
+                return true to content
             }
         }
-        return false
+        return false to "打印机应答错误,${bytes.toString(Charset.defaultCharset())}"
     }
 
 }

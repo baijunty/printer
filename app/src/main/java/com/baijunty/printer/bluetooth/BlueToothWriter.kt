@@ -323,7 +323,7 @@ abstract class BlueToothWriter(
     /**
      * 检测格式并生成打印内容
      */
-    override fun printData(stream: OutputStream, inputStream: InputStream): Boolean {
+    override fun printData(stream: OutputStream, inputStream: InputStream): Pair<Boolean, String> {
         rows.forEach { row ->
             printerType.checkRowIllegal(row)
             writer.reset()
@@ -334,7 +334,7 @@ abstract class BlueToothWriter(
                 inputStream.read(cell.outData)
             }
         }
-        return true
+        return true to "打印成功"
     }
 
     /**

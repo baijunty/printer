@@ -29,7 +29,7 @@ class HttpPrinter(val printerWriter: PrinterWriter,private val url:String):Print
     override val writer: PrinterWriter
         get() = printerWriter
 
-    override fun print(context: Context): Observable<Boolean> {
+    override fun print(context: Context): Observable<Pair<Boolean, String>> {
         return Observable.just(url)
             .observeOn(Schedulers.computation())
             .map {
