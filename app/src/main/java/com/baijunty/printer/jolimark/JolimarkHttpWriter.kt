@@ -56,7 +56,7 @@ class JolimarkHttpWriter(
         inputStream.close()
         Log.e("jolimark", resp.toString())
         val success = resp.getInt("return_code") == 0
-        var msg=resp.getString("return_msg")
+        var msg=if (success) resp.getString("return_data") else resp.getString("return_msg")
         if (resp.has("printer_state")){
             val array=resp.getJSONArray("printer_state")
             val status=(0 until array.length()).fold(StringBuilder()){sb,i->
