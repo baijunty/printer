@@ -71,6 +71,6 @@ class JolimarkHttpWriter(
     }
 
     override fun preview(): CharSequence {
-        return HtmlWriter(rows).preview()
+        return HtmlWriter(rows,useDash = true).preview()
     }
 }

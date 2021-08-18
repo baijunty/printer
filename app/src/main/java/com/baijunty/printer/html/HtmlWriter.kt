@@ -7,7 +7,8 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.lang.StringBuilder
 
-class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : PrinterWriter {
+class HtmlWriter(private val rows: List<Row>, private val border: Int = 1,
+private val useDash:Boolean=false) : PrinterWriter {
     override fun printData(stream: OutputStream, inputStream: InputStream): Pair<Boolean, String> {
         Log.i("htmlWriter","do nothing")
         return false to "不支持的打印模式"
@@ -30,7 +31,7 @@ class HtmlWriter(private val rows: List<Row>, private val border: Int = 1) : Pri
             group.add(row)
             totalColSpan
         }
-        html(border) {
+        html(border,dash = useDash) {
             chunk.forEach{
                 tag("table"){
                     it.forEach {

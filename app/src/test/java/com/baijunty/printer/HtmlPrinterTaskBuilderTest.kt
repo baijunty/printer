@@ -21,7 +21,7 @@ internal class HtmlPrinterTaskBuilderTest {
     @Test
     fun test(){
         val s=JolimarkPrinterTaskBuilder("192.168.2.107")
-            .setConnectType(ConnectTypeEnum.BLUETOOTH)
+            .setConnectType(ConnectTypeEnum.WLAN)
             .line("hello,world", bold = true, heighten = true, underLine = true, align = Align.CENTER)
             .line("往来单位：123234534")
             .line("往来单位：123234534")

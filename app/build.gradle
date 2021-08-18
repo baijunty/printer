@@ -1,33 +1,7 @@
 apply plugin:'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'maven-publish'
-group = 'com.github.baijunty'
-version = '1.02'
-afterEvaluate {
-    publishing {
-        publications {
-            // Creates a Maven publication called "release".
-            release(MavenPublication) {
-                // Applies the component for the release build variant.
-                from components.release
-
-                // You can then customize attributes of the publication as shown below.
-                groupId = 'com.github.baijunty'
-                artifactId = 'printer'
-                version = '1.02'
-            }
-            // Creates a Maven publication called “debug”.
-            debug(MavenPublication) {
-                // Applies the component for the debug build variant.
-                from components.debug
-
-                groupId = 'com.github.baijunty'
-                artifactId = 'printer-debug'
-                version = '1.02'
-            }
-        }
-    }
-}
+apply plugin: 'com.github.dcendents.android-maven'
+group='com.github.baijunty'
 android {
     compileSdkVersion 30
     defaultConfig {
@@ -84,10 +58,6 @@ dependencies {
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    // Optional -- Robolectric environment
-    testImplementation 'androidx.test:core:1.4.0'
-    // Optional -- Mockito framework
-    testImplementation 'org.mockito:mockito-core:1.10.19'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0'
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
