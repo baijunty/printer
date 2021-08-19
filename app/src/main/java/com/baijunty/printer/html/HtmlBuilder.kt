@@ -254,14 +254,14 @@ fun html(border:Int=1,dash:Boolean=false,init: Tag.() -> Unit): Tag {
     table {
       width: 100%;
       border-collapse: collapse;
-      border: ${border}px ${if (dash) "dash" else "solid"} rgb(200, 200, 200);
+      border: ${border}px ${if (dash) "dashed" else "solid"} rgb(200, 200, 200);
       letter-spacing: 1px;
       table-layout: fixed;
     }
 
     td,
     th {
-      border: ${border}px ${if (dash) "dash" else "solid"} rgb(100, 100, 100);
+      border: ${border}px ${if (dash) "dashed" else "solid"} rgb(100, 100, 100);
       padding: 10px 10px;
       text-align: center;
       overflow-wrap: anywhere;
