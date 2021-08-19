@@ -5,12 +5,13 @@ import android.util.Log
 import com.baijunty.printer.*
 import java.io.InputStream
 import java.io.OutputStream
-import java.lang.StringBuilder
 
-class HtmlWriter(private val rows: List<Row>, private val border: Int = 1,
-private val useDash:Boolean=false) : PrinterWriter {
+class HtmlWriter(
+    private val rows: List<Row>, private val border: Int = 1,
+    private val useDash: Boolean = false
+) : PrinterWriter {
     override fun printData(stream: OutputStream, inputStream: InputStream): Pair<Boolean, String> {
-        Log.i("htmlWriter","do nothing")
+        Log.i("htmlWriter", "do nothing")
         return false to "不支持的打印模式"
     }
 
@@ -19,21 +20,22 @@ private val useDash:Boolean=false) : PrinterWriter {
      * @return 页面内容字符
      */
     private fun buildHtmlContent(): String {
-        val chunk=mutableListOf<MutableList<Row>>()
-        val sb=StringBuilder("<!DOCTYPE html>")
-        rows.fold(-1){ acc, row ->
-            val totalColSpan=row.columns.fold(0){w,c->w+c.weight}
-            val group=if (acc!=totalColSpan){
-                val g=mutableListOf<Row>()
-                chunk.add(g)
-                g
-            } else chunk.last()
-            group.add(row)
-            totalColSpan
-        }
-        html(border,dash = useDash) {
-            chunk.forEach{
-                tag("table"){
+        val chunk = mutableListOf<MutableList<Row>>()
+        val sb = StringBuilder("<!DOCTYPE html>")
+        rows.filterNot { row -> row.columns.any { it is CommandCell } }
+            .fold(-1) { acc, row ->
+                val totalColSpan = row.columns.fold(0) { w, c -> w + c.weight }
+                val group = if (acc != totalColSpan) {
+                    val g = mutableListOf<Row>()
+                    chunk.add(g)
+                    g
+                } else chunk.last()
+                group.add(row)
+                totalColSpan
+            }
+        html(border, dash = useDash) {
+            chunk.forEach {
+                tag("table") {
                     it.forEach {
                         this.writeRow(it)
                     }
@@ -44,11 +46,11 @@ private val useDash:Boolean=false) : PrinterWriter {
         return sb.toString()
     }
 
-    private fun Tag.writeRow(row: Row){
-        tag("tr"){
+    private fun Tag.writeRow(row: Row) {
+        tag("tr") {
             row.columns.forEach {
                 tag("td") {
-                    prop("colspan"){
+                    prop("colspan") {
                         it.weight.toString()
                     }
                     when (it) {
@@ -141,15 +143,15 @@ private val useDash:Boolean=false) : PrinterWriter {
             }
             Align.FILL -> {
                 tag("hr") {
-                    val v=cell.getValue()
+                    val v = cell.getValue()
                     style {
-                        when(v.trim()){
-                            "="->{
-                                string("border","none")
-                                string("border-top","5px double gray")
+                        when (v.trim()) {
+                            "=" -> {
+                                string("border", "none")
+                                string("border-top", "5px double gray")
                             }
-                            "-"->string("border","1px solid gray")
-                            else->string("border","none")
+                            "-" -> string("border", "1px solid gray")
+                            else -> string("border", "none")
                         }
                     }
                     ""
