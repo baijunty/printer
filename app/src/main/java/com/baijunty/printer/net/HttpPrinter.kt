@@ -5,9 +5,9 @@ import android.view.View
 import android.webkit.WebView
 import com.baijunty.printer.PrintWorkModel
 import com.baijunty.printer.PrinterWriter
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL

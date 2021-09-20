@@ -2,8 +2,7 @@ package com.baijunty.printer
 
 import android.content.Context
 import android.view.View
-import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.core.Observable
 import java.io.Closeable
 
 /**
