@@ -340,10 +340,10 @@ abstract class BlueToothWriter(
     /**
      * 检测格式并生成预览内容
      */
-    override fun preview(): CharSequence {
+    override fun preview(styles: List<String>): CharSequence {
         rows.forEach {
             printerType.checkRowIllegal(it)
         }
-        return HtmlWriter(rows, 0).preview()
+        return HtmlWriter(rows).preview(styles)
     }
 }

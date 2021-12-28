@@ -19,5 +19,5 @@ interface PrinterWriter {
     * @param
     * @return 生成的预览数据
     */
-    fun preview():CharSequence
+    fun preview(styles:List<String> = emptyList()):CharSequence
 }

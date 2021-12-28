@@ -7,8 +7,7 @@ import java.io.InputStream
 import java.io.OutputStream
 
 class HtmlWriter(
-    private val rows: List<Row>, private val border: Int = 1,
-    private val useDash: Boolean = false
+    private val rows: List<Row>
 ) : PrinterWriter {
     override fun printData(stream: OutputStream, inputStream: InputStream): Pair<Boolean, String> {
         Log.i("htmlWriter", "do nothing")
@@ -19,7 +18,7 @@ class HtmlWriter(
      * 正式正成HTML页面
      * @return 页面内容字符
      */
-    private fun buildHtmlContent(): String {
+    private fun buildHtmlContent(styles:List<String>): String {
         val chunk = mutableListOf<MutableList<Row>>()
         val sb = StringBuilder("<!DOCTYPE html>")
         rows.filterNot { row -> row.columns.any { it is CommandCell } }
@@ -33,7 +32,7 @@ class HtmlWriter(
                 group.add(row)
                 totalColSpan
             }
-        html(border, dash = useDash) {
+        html(styles) {
             chunk.forEach {
                 tag("table") {
                     it.forEach {
@@ -165,7 +164,7 @@ class HtmlWriter(
      *
      *@return 返回打印预览用字符串
      */
-    override fun preview(): CharSequence = buildHtmlContent()
+    override fun preview(styles: List<String>): CharSequence = buildHtmlContent(styles)
 
     override fun toString(): String = preview().toString()
 }
