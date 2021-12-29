@@ -56,7 +56,13 @@ internal class HtmlPrinterTaskBuilderTest {
             .line("往来单位：123234534")
             .line("往来单位：123234534")
             .forward(4)
-            .build().writer.preview()
+            .build().writer.preview(listOf("""
+                
+    td,
+    th {
+      border: 12px solid black;
+      }
+            """.trimIndent()))
         println(s)
     }
 }

@@ -4,17 +4,12 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
-import android.content.Context
 import android.os.Build
 import com.baijunty.printer.*
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
 import java.util.*
-import kotlin.properties.Delegates
 
 /**
  * 目的蓝牙打印机
@@ -56,6 +51,7 @@ open class BlueToothPrinter(
                     when (val define = it) {
                         is TextCell -> require(!(define.style.double || define.style.bold)) { "蓝牙打印机加粗加高条只支持单行" }
                         is ImageCell -> require(row.columns.size <= 1) { "图片二维码条码打印只支持单行" }
+                        else -> {}
                     }
                 }
             }

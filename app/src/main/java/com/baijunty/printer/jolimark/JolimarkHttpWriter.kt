@@ -70,7 +70,7 @@ class JolimarkHttpWriter(
         return success to msg
     }
 
-    override fun preview(): CharSequence {
-        return HtmlWriter(rows,useDash = true).preview()
+    override fun preview(styles: List<String>): CharSequence {
+        return HtmlWriter(rows).preview(styles)
     }
 }
