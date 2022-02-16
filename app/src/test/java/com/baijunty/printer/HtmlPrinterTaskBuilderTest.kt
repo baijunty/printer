@@ -23,6 +23,10 @@ internal class HtmlPrinterTaskBuilderTest {
         val s=JolimarkPrinterTaskBuilder("192.168.2.107")
             .setConnectType(ConnectTypeEnum.WLAN)
             .line("hello,world", bold = true, heighten = true, underLine = true, align = Align.CENTER)
+            .line("往来单位：123234534")
+            .line("往来单位：123234534")
+            .line("往来单位：123234534")
+            .line("往来单位：123234534")
             .divider('=')
             .newLine {
                 string("名称",weight = 3)
@@ -52,14 +56,7 @@ internal class HtmlPrinterTaskBuilderTest {
             .line("往来单位：123234534")
             .line("往来单位：123234534")
             .forward(4)
-            .build()
-            .writer.preview(listOf("""
-                td,
-    th {
-      border: 2px solid red;
-      font-size: 250%;
-    }
-            """.trimIndent()))
+            .build().writer.preview()
         println(s)
     }
 }
