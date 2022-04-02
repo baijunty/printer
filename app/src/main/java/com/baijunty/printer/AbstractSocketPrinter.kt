@@ -35,7 +35,6 @@ abstract class AbstractSocketPrinter(var printerWriter: PrinterWriter): PrintWor
         for (i in 0 until printTime) {
             s = tryWrite()
             if (!s.first) {
-                close()
                 createSocket()
                 s = tryWrite()
             }
@@ -45,9 +44,13 @@ abstract class AbstractSocketPrinter(var printerWriter: PrinterWriter): PrintWor
 
 
 
-    protected fun tryWrite(): Pair<Boolean, String> {
+    private fun tryWrite(): Pair<Boolean, String> {
+        var failMessage = ""
         return runCatching {
             printerWriter.printData(getOutputStream(),getInputStream())
-        }.getOrThrow()
+        }.onFailure {
+            failMessage=it.message?:""
+            close()
+        }.getOrDefault(false to failMessage)
     }
 }
