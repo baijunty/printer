@@ -79,9 +79,10 @@ abstract class AbstractSocketPrinter(var printerWriter: PrinterWriter): PrintWor
     }
 
 
-    protected fun tryWrite(): Pair<Boolean, String> {
+    private fun tryWrite(): Pair<Boolean, String> {
+        var message=""
         return runCatching {
             printerWriter.printData(getOutputStream(),getInputStream())
-        }.getOrThrow()
+        }.onFailure { message=it.message?:message }.getOrDefault(false to message)
     }
 }
