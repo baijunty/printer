@@ -2,7 +2,7 @@ package com.baijunty.printer
 
 import android.content.Context
 import android.view.View
-import io.reactivex.rxjava3.core.Observable
+import io.reactivex.Observable
 import java.io.Closeable
 
 /**
@@ -11,7 +11,7 @@ import java.io.Closeable
  * @property writer 用于生成打印内容
  */
 interface PrintWorkModel : Closeable {
-    fun print(context: Context):Observable<Pair<Boolean,String>>
+    fun print(context: Context): Observable<Pair<Boolean, String>>
     fun preview(context: Context):Observable<View>
     val writer:PrinterWriter
 }
