@@ -84,6 +84,7 @@ open class BlueToothPrinter(
     }
 
     override fun createSocket() {
+        println(socket.remoteDevice)
     }
 
     /**
@@ -95,8 +96,8 @@ open class BlueToothPrinter(
                 runCatching {
                     _socket!!.close()
                 }
-                _socket = null
             }
+            _socket = null
         }
     }
 
