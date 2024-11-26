@@ -105,7 +105,7 @@ open class BlueToothPrinter(
      * 配对设备
      * @return true 成功
      */
-    @SuppressLint("NewApi")
+    @SuppressLint("NewApi", "MissingPermission")
     fun pairToDevices(device: BluetoothDevice): Boolean {
         return when {
             device.bondState == BluetoothDevice.BOND_BONDED -> true
@@ -125,6 +125,7 @@ open class BlueToothPrinter(
 
     //使用端口
     protected val socket: BluetoothSocket
+        @SuppressLint("MissingPermission")
         get() {
             if (_socket == null || !_socket!!.isConnected) {
                 val device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address)

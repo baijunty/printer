@@ -83,7 +83,7 @@ class HtmlWriter(
                                 }
                                 ""
                             }
-                            ""
+                            it.description
                         }
                         is CommandCell -> ""
                     }

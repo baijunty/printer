@@ -2,7 +2,7 @@ apply plugin:'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'maven-publish'
 group = 'com.github.baijunty'
-version = '1.10'
+version = '1.11'
 afterEvaluate {
     publishing {
         publications {
@@ -14,16 +14,16 @@ afterEvaluate {
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'com.github.baijunty'
                 artifactId = 'printer'
-                version = '1.10'
+                version = '1.11'
             }
         }
     }
 }
 android {
-    compileSdkVersion 30
+    compileSdkVersion 33
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 33
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
