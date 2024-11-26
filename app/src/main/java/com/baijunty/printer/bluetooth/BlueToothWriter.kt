@@ -202,6 +202,13 @@ abstract class BlueToothWriter(
                     }
                     else -> throw IllegalStateException("not support yet")
                 }
+                if (column.description.isNotEmpty()){
+                    writeLf()
+                    writeBytes(column.description.toByteArray())
+                    writeLf()
+                } else {
+
+                }
             }
             is CommandCell->writeBytes(column.getValue(),false)
         }

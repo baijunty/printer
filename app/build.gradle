@@ -2,7 +2,7 @@ apply plugin:'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'maven-publish'
 group = 'com.github.baijunty'
-version = '1.10'
+version = '1.11'
 afterEvaluate {
     publishing {
         publications {
@@ -14,16 +14,25 @@ afterEvaluate {
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'com.github.baijunty'
                 artifactId = 'printer'
-                version = '1.10'
+                version = '1.11'
+            }
+            // Creates a Maven publication called “debug”.
+            debug(MavenPublication) {
+                // Applies the component for the debug build variant.
+                from components.debug
+
+                groupId = 'com.github.baijunty'
+                artifactId = 'printer-debug'
+                version = '1.11'
             }
         }
     }
 }
 android {
-    compileSdkVersion 30
+    compileSdkVersion 33
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 33
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
@@ -73,9 +82,6 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'io.reactivex.rxjava3:rxjava:3.1.3'
-    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.9'
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.2'
 }

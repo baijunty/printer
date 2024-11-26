@@ -51,7 +51,7 @@ open class BlueToothPrinter(
                     when (val define = it) {
                         is TextCell -> require(!(define.style.double || define.style.bold)) { "蓝牙打印机加粗加高条只支持单行" }
                         is ImageCell -> require(row.columns.size <= 1) { "图片二维码条码打印只支持单行" }
-                        else -> {}
+                        is CommandCell -> {}
                     }
                 }
             }
@@ -104,7 +104,7 @@ open class BlueToothPrinter(
      * 配对设备
      * @return true 成功
      */
-    @SuppressLint("NewApi")
+    @SuppressLint("NewApi", "MissingPermission")
     fun pairToDevices(device: BluetoothDevice): Boolean {
         return when {
             device.bondState == BluetoothDevice.BOND_BONDED -> true
@@ -124,6 +124,7 @@ open class BlueToothPrinter(
 
     //使用端口
     protected val socket: BluetoothSocket
+        @SuppressLint("MissingPermission")
         get() {
             if (_socket == null || !_socket!!.isConnected) {
                 val device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address)

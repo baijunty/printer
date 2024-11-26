@@ -90,7 +90,8 @@ sealed class PrintTaskBuilder {
         value: String,
         type: BarCodeType = BarCodeType.Code93,
         width: Int = -1,
-        height: Int = -1
+        height: Int = -1,
+        description: String = ""
     ): PrintTaskBuilder {
         val row = Row()
         row.columns.add(
@@ -98,7 +99,8 @@ sealed class PrintTaskBuilder {
                 value,
                 type = BarCode(type),
                 width = width,
-                height = height
+                height = height,
+                description = description,
             ) as Cell<Any>
         )
         rows.add(row)
@@ -109,14 +111,15 @@ sealed class PrintTaskBuilder {
      *生成[value]内容二维码打印
      * 占用整行
      */
-    open fun qrCode(value: String, width: Int = -1, height: Int = -1): PrintTaskBuilder {
+    open fun qrCode(value: String, width: Int = -1, height: Int = -1,description: String = ""): PrintTaskBuilder {
         val row = Row()
         row.columns.add(
             ImageCell(
                 value,
                 type = QRCode,
                 width = width,
-                height = height
+                height = height,
+                description = description,
             ) as Cell<Any>
         )
         rows.add(row)
@@ -130,7 +133,8 @@ sealed class PrintTaskBuilder {
     open fun bitmap(
         supply: Supply<ByteArray, ImageCell>,
         width: Int,
-        height: Int
+        height: Int,
+        description: String = ""
     ): PrintTaskBuilder {
         val row = Row()
         row.columns.add(
@@ -139,7 +143,8 @@ sealed class PrintTaskBuilder {
                 type = Image,
                 supply = supply,
                 width = width,
-                height = height
+                height = height,
+                description = description,
             ) as Cell<Any>
         )
         rows.add(row)
@@ -208,26 +213,28 @@ open class BlueToothPrinterTaskBuilder(private var address: String) : PrintTaskB
         value: String,
         type: BarCodeType,
         width: Int,
-        height: Int
+        height: Int,
+        description: String
     ): BlueToothPrinterTaskBuilder {
-        super.barCode(value, type, width, height)
+        super.barCode(value, type, width, height,description)
         return this
     }
 
     /**
      *@see [PrintTaskBuilder.qrCode]
      */
-    override fun qrCode(value: String, width: Int, height: Int): BlueToothPrinterTaskBuilder {
-        super.qrCode(value, width, height)
+    override fun qrCode(value: String, width: Int, height: Int,description: String): BlueToothPrinterTaskBuilder {
+        super.qrCode(value, width, height,description)
         return this
     }
 
     override fun bitmap(
         supply: Supply<ByteArray, ImageCell>,
         width: Int,
-        height: Int
+        height: Int,
+        description: String
     ): BlueToothPrinterTaskBuilder {
-        super.bitmap(supply, width, height)
+        super.bitmap(supply, width, height,description)
         return this
     }
 
@@ -389,26 +396,28 @@ class HtmlPrinterTaskBuilder : PrintTaskBuilder() {
         value: String,
         type: BarCodeType,
         width: Int,
-        height: Int
+        height: Int,
+        description: String
     ): HtmlPrinterTaskBuilder {
-        super.barCode(value, type, width, height)
+        super.barCode(value, type, width, height,description)
         return this
     }
 
     /**
      *@see [PrintTaskBuilder.qrCode]
      */
-    override fun qrCode(value: String, width: Int, height: Int): HtmlPrinterTaskBuilder {
-        super.qrCode(value, width, height)
+    override fun qrCode(value: String, width: Int, height: Int,description: String): HtmlPrinterTaskBuilder {
+        super.qrCode(value, width, height,description)
         return this
     }
 
     override fun bitmap(
         supply: Supply<ByteArray, ImageCell>,
         width: Int,
-        height: Int
+        height: Int,
+        description: String
     ): HtmlPrinterTaskBuilder {
-        super.bitmap(supply, width, height)
+        super.bitmap(supply, width, height,description)
         return this
     }
 

@@ -48,7 +48,7 @@ class TextCell(val content:String, val style: Style = DEFAULT_STYLE, val align: 
  */
 @Suppress("UNCHECKED_CAST")
 class ImageCell(val content:String, val type: ImageType,supply: Supply<ByteArray, ImageCell> = EmptyBytesSupply, weight:Int=1,
-                val width:Int=-1,val height:Int=-1):
+                val width:Int=-1,val height:Int=-1,val description:String=""):
         Cell<ByteArray>(supply as Supply<ByteArray, Cell<ByteArray>>,weight)
 
 /**
