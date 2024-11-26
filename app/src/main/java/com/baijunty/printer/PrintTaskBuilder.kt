@@ -522,14 +522,15 @@ class BlueToothRowBuilder(row: Row, private val blueTaskBuilder: BlueToothPrinte
     /**
      * 使用[supply]返回字节生成图片打印
      */
-    fun bitmap(supply: Supply<ByteArray, ImageCell>): BlueToothPrinterTaskBuilder {
+    fun bitmap(supply: Supply<ByteArray, ImageCell>,description: String): BlueToothPrinterTaskBuilder {
         row.columns.add(
             ImageCell(
                 "",
                 type = Image,
                 supply = supply,
                 width = -1,
-                height = -1
+                height = -1,
+                description = description
             ) as Cell<Any>
         )
         return blueTaskBuilder
@@ -542,14 +543,16 @@ class BlueToothRowBuilder(row: Row, private val blueTaskBuilder: BlueToothPrinte
         value: String,
         type: BarCodeType = BarCodeType.Code93,
         width: Int,
-        height: Int
+        height: Int,
+        description: String
     ): BlueToothPrinterTaskBuilder {
         row.columns.add(
             ImageCell(
                 value,
                 type = BarCode(type),
                 width = width,
-                height = height
+                height = height,
+                description = description
             ) as Cell<Any>
         )
         return blueTaskBuilder
@@ -558,13 +561,14 @@ class BlueToothRowBuilder(row: Row, private val blueTaskBuilder: BlueToothPrinte
     /**
      * 使用[value]生成二维码打印
      */
-    fun qrCode(value: String, width: Int = -1, height: Int = -1): BlueToothPrinterTaskBuilder {
+    fun qrCode(value: String, width: Int = -1, height: Int = -1,description: String): BlueToothPrinterTaskBuilder {
         row.columns.add(
             ImageCell(
                 value,
                 type = QRCode,
                 width = width,
-                height = height
+                height = height,
+                description = description
             ) as Cell<Any>
         )
         return blueTaskBuilder
@@ -578,14 +582,15 @@ class HtmlRowBuilder(row: Row, htmlTaskBuilder: HtmlPrinterTaskBuilder) :
     /**
      * 使用[supply]返回字节生成图片打印
      */
-    fun bitmap(supply: Supply<ByteArray, ImageCell>, width: Int, height: Int): HtmlRowBuilder {
+    fun bitmap(supply: Supply<ByteArray, ImageCell>, width: Int, height: Int,description: String): HtmlRowBuilder {
         row.columns.add(
             ImageCell(
                 "",
                 type = Image,
                 supply = supply,
                 width = width,
-                height = height
+                height = height,
+                description = description
             ) as Cell<Any>
         )
         return this
@@ -598,14 +603,16 @@ class HtmlRowBuilder(row: Row, htmlTaskBuilder: HtmlPrinterTaskBuilder) :
         value: String,
         type: BarCodeType = BarCodeType.Code93,
         width: Int,
-        height: Int
+        height: Int,
+        description: String
     ): HtmlRowBuilder {
         row.columns.add(
             ImageCell(
                 value,
                 type = BarCode(type),
                 width = width,
-                height = height
+                height = height,
+                description = description
             ) as Cell<Any>
         )
         return this
@@ -614,13 +621,14 @@ class HtmlRowBuilder(row: Row, htmlTaskBuilder: HtmlPrinterTaskBuilder) :
     /**
      * 使用[value]生成二维码打印
      */
-    fun qrCode(value: String, width: Int = -1, height: Int = -1): HtmlRowBuilder {
+    fun qrCode(value: String, width: Int = -1, height: Int = -1,description: String): HtmlRowBuilder {
         row.columns.add(
             ImageCell(
                 value,
                 type = QRCode,
                 width = width,
-                height = height
+                height = height,
+                description = description
             ) as Cell<Any>
         )
         return this
