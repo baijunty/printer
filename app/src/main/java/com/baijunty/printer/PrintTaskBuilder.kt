@@ -91,6 +91,7 @@ sealed class PrintTaskBuilder {
         type: BarCodeType = BarCodeType.Code93,
         width: Int = -1,
         height: Int = -1,
+        weight: Int =1,
         description: String = ""
     ): PrintTaskBuilder {
         val row = Row()
@@ -100,6 +101,7 @@ sealed class PrintTaskBuilder {
                 type = BarCode(type),
                 width = width,
                 height = height,
+                weight = weight,
                 description = description,
             ) as Cell<Any>
         )
@@ -111,7 +113,7 @@ sealed class PrintTaskBuilder {
      *生成[value]内容二维码打印
      * 占用整行
      */
-    open fun qrCode(value: String, width: Int = -1, height: Int = -1,description: String = ""): PrintTaskBuilder {
+    open fun qrCode(value: String, width: Int = -1, height: Int = -1,weight: Int =1,description: String = ""): PrintTaskBuilder {
         val row = Row()
         row.columns.add(
             ImageCell(
@@ -119,6 +121,7 @@ sealed class PrintTaskBuilder {
                 type = QRCode,
                 width = width,
                 height = height,
+                weight = weight,
                 description = description,
             ) as Cell<Any>
         )
@@ -134,6 +137,7 @@ sealed class PrintTaskBuilder {
         supply: Supply<ByteArray, ImageCell>,
         width: Int,
         height: Int,
+        weight: Int =1,
         description: String = ""
     ): PrintTaskBuilder {
         val row = Row()
@@ -144,6 +148,7 @@ sealed class PrintTaskBuilder {
                 supply = supply,
                 width = width,
                 height = height,
+                weight = weight,
                 description = description,
             ) as Cell<Any>
         )
@@ -214,17 +219,18 @@ open class BlueToothPrinterTaskBuilder(private var address: String) : PrintTaskB
         type: BarCodeType,
         width: Int,
         height: Int,
+        weight: Int,
         description: String
     ): BlueToothPrinterTaskBuilder {
-        super.barCode(value, type, width, height,description)
+        super.barCode(value, type, width, height,weight,description)
         return this
     }
 
     /**
      *@see [PrintTaskBuilder.qrCode]
      */
-    override fun qrCode(value: String, width: Int, height: Int,description: String): BlueToothPrinterTaskBuilder {
-        super.qrCode(value, width, height,description)
+    override fun qrCode(value: String, width: Int, height: Int,weight: Int,description: String): BlueToothPrinterTaskBuilder {
+        super.qrCode(value, width, height,weight,description)
         return this
     }
 
@@ -232,9 +238,10 @@ open class BlueToothPrinterTaskBuilder(private var address: String) : PrintTaskB
         supply: Supply<ByteArray, ImageCell>,
         width: Int,
         height: Int,
+        weight: Int,
         description: String
     ): BlueToothPrinterTaskBuilder {
-        super.bitmap(supply, width, height,description)
+        super.bitmap(supply, width, height,weight,description)
         return this
     }
 
@@ -397,17 +404,18 @@ class HtmlPrinterTaskBuilder : PrintTaskBuilder() {
         type: BarCodeType,
         width: Int,
         height: Int,
+        weight: Int,
         description: String
     ): HtmlPrinterTaskBuilder {
-        super.barCode(value, type, width, height,description)
+        super.barCode(value, type, width, height,weight,description)
         return this
     }
 
     /**
      *@see [PrintTaskBuilder.qrCode]
      */
-    override fun qrCode(value: String, width: Int, height: Int,description: String): HtmlPrinterTaskBuilder {
-        super.qrCode(value, width, height,description)
+    override fun qrCode(value: String, width: Int, height: Int,weight: Int,description: String): HtmlPrinterTaskBuilder {
+        super.qrCode(value, width, height,weight,description)
         return this
     }
 
@@ -415,9 +423,10 @@ class HtmlPrinterTaskBuilder : PrintTaskBuilder() {
         supply: Supply<ByteArray, ImageCell>,
         width: Int,
         height: Int,
+        weight: Int,
         description: String
     ): HtmlPrinterTaskBuilder {
-        super.bitmap(supply, width, height,description)
+        super.bitmap(supply, width, height,weight,description)
         return this
     }
 
@@ -522,7 +531,7 @@ class BlueToothRowBuilder(row: Row, private val blueTaskBuilder: BlueToothPrinte
     /**
      * 使用[supply]返回字节生成图片打印
      */
-    fun bitmap(supply: Supply<ByteArray, ImageCell>,description: String): BlueToothPrinterTaskBuilder {
+    fun bitmap(supply: Supply<ByteArray, ImageCell>,description: String="",weight: Int=1): BlueToothPrinterTaskBuilder {
         row.columns.add(
             ImageCell(
                 "",
@@ -530,6 +539,7 @@ class BlueToothRowBuilder(row: Row, private val blueTaskBuilder: BlueToothPrinte
                 supply = supply,
                 width = -1,
                 height = -1,
+                weight = weight,
                 description = description
             ) as Cell<Any>
         )
@@ -544,7 +554,8 @@ class BlueToothRowBuilder(row: Row, private val blueTaskBuilder: BlueToothPrinte
         type: BarCodeType = BarCodeType.Code93,
         width: Int,
         height: Int,
-        description: String
+        description: String="",
+        weight: Int=1
     ): BlueToothPrinterTaskBuilder {
         row.columns.add(
             ImageCell(
@@ -552,6 +563,7 @@ class BlueToothRowBuilder(row: Row, private val blueTaskBuilder: BlueToothPrinte
                 type = BarCode(type),
                 width = width,
                 height = height,
+                weight = weight,
                 description = description
             ) as Cell<Any>
         )
@@ -561,13 +573,14 @@ class BlueToothRowBuilder(row: Row, private val blueTaskBuilder: BlueToothPrinte
     /**
      * 使用[value]生成二维码打印
      */
-    fun qrCode(value: String, width: Int = -1, height: Int = -1,description: String): BlueToothPrinterTaskBuilder {
+    fun qrCode(value: String, width: Int = -1, height: Int = -1,description: String="",weight: Int=1): BlueToothPrinterTaskBuilder {
         row.columns.add(
             ImageCell(
                 value,
                 type = QRCode,
                 width = width,
                 height = height,
+                weight = weight,
                 description = description
             ) as Cell<Any>
         )
@@ -582,7 +595,7 @@ class HtmlRowBuilder(row: Row, htmlTaskBuilder: HtmlPrinterTaskBuilder) :
     /**
      * 使用[supply]返回字节生成图片打印
      */
-    fun bitmap(supply: Supply<ByteArray, ImageCell>, width: Int, height: Int,description: String): HtmlRowBuilder {
+    fun bitmap(supply: Supply<ByteArray, ImageCell>, width: Int, height: Int,description: String="",weight: Int=1): HtmlRowBuilder {
         row.columns.add(
             ImageCell(
                 "",
@@ -590,6 +603,7 @@ class HtmlRowBuilder(row: Row, htmlTaskBuilder: HtmlPrinterTaskBuilder) :
                 supply = supply,
                 width = width,
                 height = height,
+                weight = weight,
                 description = description
             ) as Cell<Any>
         )
@@ -604,7 +618,8 @@ class HtmlRowBuilder(row: Row, htmlTaskBuilder: HtmlPrinterTaskBuilder) :
         type: BarCodeType = BarCodeType.Code93,
         width: Int,
         height: Int,
-        description: String
+        description: String="",
+        weight: Int=1
     ): HtmlRowBuilder {
         row.columns.add(
             ImageCell(
@@ -612,6 +627,7 @@ class HtmlRowBuilder(row: Row, htmlTaskBuilder: HtmlPrinterTaskBuilder) :
                 type = BarCode(type),
                 width = width,
                 height = height,
+                weight = weight,
                 description = description
             ) as Cell<Any>
         )
@@ -621,13 +637,14 @@ class HtmlRowBuilder(row: Row, htmlTaskBuilder: HtmlPrinterTaskBuilder) :
     /**
      * 使用[value]生成二维码打印
      */
-    fun qrCode(value: String, width: Int = -1, height: Int = -1,description: String): HtmlRowBuilder {
+    fun qrCode(value: String, width: Int = -1, height: Int = -1,description: String="",weight: Int=1): HtmlRowBuilder {
         row.columns.add(
             ImageCell(
                 value,
                 type = QRCode,
                 width = width,
                 height = height,
+                weight = weight,
                 description = description
             ) as Cell<Any>
         )
